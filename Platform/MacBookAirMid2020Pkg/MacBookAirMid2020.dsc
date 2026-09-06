@@ -35,6 +35,8 @@
   NETWORK_TLS_ENABLE             = TRUE
   # Enumeration-only AGX G2 profile.  Stable builds must keep this FALSE.
   J313_AGX_G2_PROFILE            = FALSE
+  # Offline native ANS candidate only; never enable before EL2 trap qualification.
+  J313_ANS_NATIVE_PROFILE        = FALSE
   # Candidate-only synthetic-interrupt Full Graphics ABI admission profile.
   J313_AGX_ABI_ADMISSION_PROFILE            = FALSE
 
@@ -58,7 +60,9 @@
 
 [Components.common]
 
-!if $(J313_AGX_ABI_ADMISSION_PROFILE) == TRUE
+!if $(J313_ANS_NATIVE_PROFILE) == TRUE
+  MacBookAirMid2020Pkg/AcpiTables/DeviceAcpiTablesAnsNative.inf
+!elseif $(J313_AGX_ABI_ADMISSION_PROFILE) == TRUE
   MacBookAirMid2020Pkg/AcpiTables/DeviceAcpiTablesAgxAbiAdmission.inf
 !elseif $(J313_AGX_G2_PROFILE) == TRUE
   MacBookAirMid2020Pkg/AcpiTables/DeviceAcpiTablesG2.inf
@@ -72,7 +76,11 @@
   # no built-in acpiview, so it doubles as the ACPI table dumper.
   # Same idea: standalone, copied onto the RAMDisk, never packaged into the FV.
   AppleSiliconPkg/Application/BootLaunchApp/BootLaunchApp.inf
+!if $(J313_ANS_NATIVE_PROFILE) == TRUE
+  AppleSiliconPkg/Drivers/WindowsAutoBootDxe/WindowsAutoBootAnsNative.inf
+!else
   AppleSiliconPkg/Drivers/WindowsAutoBootDxe/WindowsAutoBootDxe.inf
+!endif
   AppleSiliconPkg/Application/BootLaunchApp/BootLaunchAppQemu.inf {
     <LibraryClasses>
       DebugLib|MdePkg/Library/UefiDebugLibConOut/UefiDebugLibConOut.inf

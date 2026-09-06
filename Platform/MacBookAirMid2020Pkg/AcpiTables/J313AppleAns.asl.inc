@@ -1,7 +1,7 @@
 // Generated from config/j313-ans.json; synthetic allocation, not physical ANS MMIO.
 // Include in a profile that defines ANSN only after native ownership is armed.
 Device (ANS0) {
-    Name (_HID, "APPLANS0")
+    Name (_HID, "APPL0003")
     Name (_UID, Zero)
     Name (_CCA, One)
     Name (_CRS, ResourceTemplate () {

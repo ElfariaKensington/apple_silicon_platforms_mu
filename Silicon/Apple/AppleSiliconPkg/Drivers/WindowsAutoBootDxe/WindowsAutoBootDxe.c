@@ -14,6 +14,17 @@
 #include <Protocol/BlockIo.h>
 #include <Protocol/LoadedImage.h>
 #include <Protocol/SimpleFileSystem.h>
+#ifdef APPLE_ANS_RAMDISK_ONLY
+#include <Library/AppleAnsBootSource.h>
+#include <Library/BaseLib.h>
+STATIC volatile EFI_STATUS mNativeBootFailure;
+STATIC VOID NativeBootFailed (EFI_STATUS Status)
+{
+  mNativeBootFailure = Status;
+  DEBUG ((DEBUG_ERROR, "ANS qualification: no eligible preloaded WinPE boot, status %r\n", Status));
+  CpuDeadLoop ();
+}
+#endif
 
 #define WINDOWS_FALLBACK_LOADER  L"\\EFI\\BOOT\\BOOTAA64.EFI"
 
@@ -51,6 +62,9 @@ ConnectAllBlockIoHandles (
   // children of the emulated NVMe yet.  The internal ESP therefore has no SimpleFS
   // handle until its BlockIo ancestry is recursively connected.
   for (UINTN Index = 0; Index < HandleCount; Index++) {
+#ifdef APPLE_ANS_RAMDISK_ONLY
+    if (!AppleAnsPreloadedBootPath (DevicePathFromHandle (Handles[Index]), FALSE)) continue;
+#endif
     gBS->ConnectController (Handles[Index], NULL, NULL, TRUE);
   }
 
@@ -155,6 +169,10 @@ TryStartWindowsFromHandle (
     return TRUE;
   }
 
+#ifdef APPLE_ANS_RAMDISK_ONLY
+  if (!AppleAnsPreloadedBootPath (DevicePathFromHandle (FileSystemHandle), FALSE)) return FALSE;
+#endif
+
   BlockIo = NULL;
   Status = gBS->HandleProtocol (
                   FileSystemHandle,
@@ -178,6 +196,10 @@ TryStartWindowsFromHandle (
 
   mWindowsStarted = TRUE;
   Status = StartWindowsFromHandle (FileSystemHandle);
+#ifdef APPLE_ANS_RAMDISK_ONLY
+  // Any returned loader, including EFI_SUCCESS, must not resume BDS fallback.
+  NativeBootFailed (Status);
+#endif
   if (EFI_ERROR (Status)) {
     mWindowsStarted = FALSE;
     return FALSE;
@@ -233,6 +255,9 @@ WindowsAutoBootReadyToBoot (
   (VOID)Context;
   gBS->CloseEvent (Event);
   mReadyToBootEvent = NULL;
+#ifdef APPLE_ANS_RAMDISK_ONLY
+  if (mWindowsStarted) return; // ReadyToBoot can be raised by the approved loader.
+#endif
 
   ConnectAllBlockIoHandles ();
 
@@ -247,6 +272,9 @@ WindowsAutoBootReadyToBoot (
                   );
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "WindowsAutoBootDxe: no filesystems: %r\n", Status));
+#ifdef APPLE_ANS_RAMDISK_ONLY
+    NativeBootFailed (Status);
+#endif
     return;
   }
 
@@ -258,6 +286,9 @@ WindowsAutoBootReadyToBoot (
   }
 
   FreePool (Handles);
+#ifdef APPLE_ANS_RAMDISK_ONLY
+  NativeBootFailed (EFI_NOT_FOUND);
+#endif
 }
 
 EFI_STATUS

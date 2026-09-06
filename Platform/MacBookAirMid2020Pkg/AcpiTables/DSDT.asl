@@ -19,6 +19,12 @@
 
  DefinitionBlock("DSDT.aml", "DSDT", 0x02, "Apple", "J31x", 0x8103) {
     Scope(\_SB) {
+#ifdef J313_ANS_NATIVE_ACPI
+        // Native wrapper only. EL2 must arm ownership before Windows entry.
+        Name (ANSN, One)
+        Include ("J313AppleAns.asl.inc")
+#endif
+
         // Generated from config/j313-apple-input.json.  Keep the firmware,
         // hypervisor, and Windows driver resource contracts byte-for-byte in
         // sync; never duplicate these machine-specific values in this DSDT.

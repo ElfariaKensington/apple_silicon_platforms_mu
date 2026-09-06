@@ -35,12 +35,4 @@
 // than embedded in the firmware volume. The payload is placed one page in so that the
 // disk image itself stays page aligned.
 //
-#define PRELOADED_RAMDISK_MAGIC           "ASIRAMDK"
-#define PRELOADED_RAMDISK_PAYLOAD_OFFSET  0x1000
-
-#pragma pack(1)
-typedef struct {
-  CHAR8   Magic[8];
-  UINT64  Size;
-} PRELOADED_RAMDISK_HEADER;
-#pragma pack()
+#include <Library/PreloadedRamdisk.h>
