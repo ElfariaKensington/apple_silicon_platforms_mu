@@ -41,7 +41,7 @@ STATIC inline BOOLEAN AppleAnsBootSourceMatches (
   CONST UINT8 *P = DevicePath;
   CONST UINT8 *H = Header;
   CONST EFI_GUID DiskType = EFI_VIRTUAL_DISK_GUID;
-  CONST UINT8 Magic[8] = PRELOADED_RAMDISK_MAGIC;
+  CONST UINT8 Magic[] = PRELOADED_RAMDISK_MAGIC; /* 8 bytes compared; NUL unused */
   UINTN Offset = 0;
   BOOLEAN Partition = FALSE, File = FALSE;
   if (!P || !H || Bytes < 42 || Bytes > APPLE_ANS_BOOT_PATH_MAX || !HeaderBase ||
