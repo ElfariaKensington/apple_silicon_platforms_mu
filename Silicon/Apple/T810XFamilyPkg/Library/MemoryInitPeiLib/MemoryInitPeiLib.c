@@ -562,6 +562,22 @@ VOID BuildVirtualMemoryMap(OUT ARM_MEMORY_REGION_DESCRIPTOR **VirtualMemoryMap)
    * TODO: add ARM_MEMORY_REGION_ATTRIBUTE_DEVICE_POSTED_WRITE
    **/
 
+#ifdef J316S_SETUP
+  // EL2 maps these apertures to software handlers. Setup has no device passthrough.
+  UINT64 GicDist = FixedPcdGet64 (PcdGicDistributorBase);
+  UINT64 GicRedist = FixedPcdGet64 (PcdGicRedistributorsBase);
+  UINT64 Uart = FixedPcdGet64 (PcdAppleUartBase);
+  VirtualMemoryTable[Index] = (ARM_MEMORY_REGION_DESCRIPTOR) {
+    GicDist, GicDist, 0x10000, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE
+  };
+  VirtualMemoryTable[++Index] = (ARM_MEMORY_REGION_DESCRIPTOR) {
+    GicRedist, GicRedist, 0x20000 * FixedPcdGet32 (PcdCoreCount),
+    ARM_MEMORY_REGION_ATTRIBUTE_DEVICE
+  };
+  VirtualMemoryTable[++Index] = (ARM_MEMORY_REGION_DESCRIPTOR) {
+    Uart, Uart, 0x4000, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE
+  };
+#else
   //MMIO - PMGR/AIC/Core System Peripherals and PCIe
   VirtualMemoryTable[Index].PhysicalBase = APPLE_CORE_SYSTEM_MMIO_RANGE_1_BASE;
   VirtualMemoryTable[Index].VirtualBase  = APPLE_CORE_SYSTEM_MMIO_RANGE_1_BASE;
@@ -639,6 +655,8 @@ VOID BuildVirtualMemoryMap(OUT ARM_MEMORY_REGION_DESCRIPTOR **VirtualMemoryMap)
   VirtualMemoryTable[Index].VirtualBase    = APPLE_CORE_SYSTEM_MMIO_RANGE_7_BASE;
   VirtualMemoryTable[Index].Length         = APPLE_CORE_SYSTEM_MMIO_RANGE_7_SIZE;
   VirtualMemoryTable[Index].Attributes     = ARM_MEMORY_REGION_ATTRIBUTE_DEVICE;
+
+#endif
 
   //System DRAM
   VirtualMemoryTable[++Index].PhysicalBase = PcdGet64(PcdSystemMemoryBase);

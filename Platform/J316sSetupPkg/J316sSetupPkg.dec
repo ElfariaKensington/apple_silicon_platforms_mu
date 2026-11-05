@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: BSD-2-Clause-Patent OR MIT
+
+[Defines]
+  DEC_SPECIFICATION = 0x00010005
+  PACKAGE_NAME = J316sSetupPkg
+  PACKAGE_GUID = f9a7eb16-c0c2-4bbf-9b9a-f1a6ba9d74ce
+  PACKAGE_VERSION = 1.0

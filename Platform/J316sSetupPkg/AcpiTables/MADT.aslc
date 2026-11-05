@@ -1,0 +1,50 @@
+// SPDX-License-Identifier: BSD-2-Clause-Patent OR MIT
+
+#include <Library/AcpiLib.h>
+#include <Library/PcdLib.h>
+#include <IndustryStandard/Acpi64.h>
+#include <Acpi/AcpiHeader.h>
+
+#define GICC(Uid, Mpidr, Efficiency) \
+  EFI_ACPI_6_3_GICC_STRUCTURE_INIT (Uid, Uid, Mpidr, EFI_ACPI_6_3_GIC_ENABLED, \
+                                   0, 0, 0, 0, 25, 0, Efficiency, 0)
+
+#pragma pack(1)
+typedef struct {
+  EFI_ACPI_6_4_MULTIPLE_APIC_DESCRIPTION_TABLE_HEADER Header;
+  EFI_ACPI_6_3_GIC_STRUCTURE Cpu[FixedPcdGet32 (PcdCoreCount)];
+  EFI_ACPI_6_0_GIC_DISTRIBUTOR_STRUCTURE Distributor;
+  EFI_ACPI_6_4_GICR_STRUCTURE Redistributors;
+} J316S_MADT;
+#pragma pack()
+
+STATIC J316S_MADT Madt = {
+  {
+    __ACPI_HEADER (EFI_ACPI_6_4_MULTIPLE_APIC_DESCRIPTION_TABLE_SIGNATURE,
+                   J316S_MADT, EFI_ACPI_6_4_MULTIPLE_APIC_DESCRIPTION_TABLE_REVISION),
+    0,
+    0
+  },
+  {
+    GICC (0, 0x00000, 0),
+    GICC (1, 0x00001, 0),
+    GICC (2, 0x10100, 1),
+    GICC (3, 0x10101, 1),
+    GICC (4, 0x10102, 1),
+    GICC (5, 0x10103, 1),
+    GICC (6, 0x10200, 1),
+    GICC (7, 0x10201, 1),
+    GICC (8, 0x10202, 1),
+    GICC (9, 0x10203, 1)
+  },
+  EFI_ACPI_6_0_GIC_DISTRIBUTOR_INIT (0, FixedPcdGet64 (PcdGicDistributorBase), 0, 3),
+  {
+    EFI_ACPI_6_4_GICR,
+    sizeof (EFI_ACPI_6_4_GICR_STRUCTURE),
+    0,
+    FixedPcdGet64 (PcdGicRedistributorsBase),
+    0x20000 * FixedPcdGet32 (PcdCoreCount)
+  }
+};
+
+VOID *CONST ReferenceAcpiTable = &Madt;

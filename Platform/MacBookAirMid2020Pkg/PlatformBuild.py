@@ -135,6 +135,7 @@ class SettingsManager(UpdateSettingsManager, SetupSettingsManager, PrEvalSetting
 class PlatformBuilder( UefiBuilder, BuildSettingsManager):
     def __init__(self):
         UefiBuilder.__init__(self)
+        self.platform = "MacBookAirMid2020"
 
     def AddCommandLineOptions(self, parserObj):
         ''' Add command line options to the argparser '''
@@ -145,6 +146,8 @@ class PlatformBuilder( UefiBuilder, BuildSettingsManager):
         parserObj.add_argument('-a', "--arch", dest="build_arch", type=str, default="AARCH64",
             help="Optional - CSV of architecture to build.  AARCH64 is used for PEI and "
             "DXE and is the only valid option for this platform.")
+        parserObj.add_argument("--j316s-setup", action="store_true",
+                               help="Build the isolated J316s Setup firmware")
 
     def RetrieveCommandLineOptions(self, args):
         '''  Retrieve command line options from the argparser '''
@@ -154,8 +157,10 @@ class PlatformBuilder( UefiBuilder, BuildSettingsManager):
         shell_environment.GetBuildVars().SetValue(
             "TARGET_ARCH", args.build_arch.upper(), "From CmdLine")
 
+        if args.j316s_setup:
+            self.platform = "J316sSetup"
         shell_environment.GetBuildVars().SetValue(
-            "ACTIVE_PLATFORM", "MacBookAirMid2020Pkg/MacBookAirMid2020.dsc", "From CmdLine")
+            "ACTIVE_PLATFORM", f"{self.platform}Pkg/{self.platform}.dsc", "From CmdLine")
 
 
     def GetWorkspaceRoot(self):
@@ -192,8 +197,8 @@ class PlatformBuilder( UefiBuilder, BuildSettingsManager):
 
     def SetPlatformEnv(self):
         logging.debug("PlatformBuilder SetPlatformEnv")
-        self.env.SetValue("PRODUCT_NAME", "MacBookAirMid2020", "Platform Hardcoded")
-        self.env.SetValue("ACTIVE_PLATFORM", "MacBookAirMid2020Pkg/MacBookAirMid2020.dsc", "Platform Hardcoded")
+        self.env.SetValue("PRODUCT_NAME", self.platform, "Platform selection")
+        self.env.SetValue("ACTIVE_PLATFORM", f"{self.platform}Pkg/{self.platform}.dsc", "Platform selection")
         self.env.SetValue("TARGET_ARCH", "AARCH64", "Platform Hardcoded")
         self.env.SetValue("TOOL_CHAIN_TAG", "CLANGPDB", "set default to clangpdb")
         # self.env.SetValue("EMPTY_DRIVE", "FALSE", "Default to false")

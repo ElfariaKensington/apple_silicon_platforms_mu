@@ -70,5 +70,8 @@
   gAppleSiliconPkgTokenSpaceGuid.PcdFrameBufferAddress
   gAppleSiliconPkgTokenSpaceGuid.PcdFrameBufferSize
   gAppleSiliconPkgTokenSpaceGuid.PcdCoreCount
+  gAppleSiliconPkgTokenSpaceGuid.PcdAppleUartBase
+  gArmTokenSpaceGuid.PcdGicDistributorBase
+  gArmTokenSpaceGuid.PcdGicRedistributorsBase
 [Depex]
   TRUE
