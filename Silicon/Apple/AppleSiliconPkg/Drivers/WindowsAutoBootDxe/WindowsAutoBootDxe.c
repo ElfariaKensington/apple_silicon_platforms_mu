@@ -223,6 +223,14 @@ WindowsAutoBootFileSystemNotify (
   (VOID)Event;
   (VOID)Context;
 
+#ifdef APPLE_ANS_RAMDISK_ONLY
+  // The preloaded RAM disk publishes its SimpleFS during DXE, before EndOfDxe, where
+  // DxeDeferImageLoadLib defers any 3rd-party image with EFI_ACCESS_DENIED (ANS001-R4).
+  // Native qualification therefore starts the loader only from ReadyToBoot, which BDS
+  // signals after EndOfDxe.
+  return;
+#endif
+
   while (!mWindowsStarted) {
     HandleSize = sizeof (Handle);
     Status = gBS->LocateHandle (
