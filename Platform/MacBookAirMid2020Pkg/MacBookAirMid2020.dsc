@@ -45,6 +45,11 @@
   *_*_*_CC_FLAGS = -D DISABLE_NEW_DEPRECATED_INTERFACES -D HAS_MEMCPY_INTRINSICS
 
 [PcdsFixedAtBuild.common]
+!if $(J313_ANS_NATIVE_PROFILE) == TRUE
+  # Must equal config/j313-ans.json broker.guest_base/size (root contract test).
+  gAppleSiliconPkgTokenSpaceGuid.PcdAnsBrokerWindowBase|0x300010000
+  gAppleSiliconPkgTokenSpaceGuid.PcdAnsBrokerWindowSize|0x4000
+!endif
   gAppleSiliconPkgTokenSpaceGuid.PcdSmbiosSystemModel|"MacBook Air (Mid 2020)"
   gAppleSiliconPkgTokenSpaceGuid.PcdSmbiosSystemModelNumber|"MacBookAir10,1"
   gAppleSiliconPkgTokenSpaceGuid.PcdSmbiosSystemSku|"MacBook Air (MacBookAir10,1)"

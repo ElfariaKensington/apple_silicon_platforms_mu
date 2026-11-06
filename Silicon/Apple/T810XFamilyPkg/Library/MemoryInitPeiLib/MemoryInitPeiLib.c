@@ -31,7 +31,7 @@
 //Device memory map configuration file for UEFI (this is to help with pagetable initialization)
 #include <Library/T810XFamilyVirtualMemoryMapDefines.h>
 
-#define MAX_VIRTUAL_MEMORY_MAP_DESCRIPTORS 19  // +1 for the low-memory window
+#define MAX_VIRTUAL_MEMORY_MAP_DESCRIPTORS 20  // +1 low-memory window, +1 ANS broker window
 
 #define DDR_ATTRIBUTES_CACHED           ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK
 #define DDR_ATTRIBUTES_UNCACHED         ARM_MEMORY_REGION_ATTRIBUTE_UNCACHED_UNBUFFERED
@@ -511,6 +511,17 @@ VOID BuildVirtualMemoryMap(OUT ARM_MEMORY_REGION_DESCRIPTOR **VirtualMemoryMap)
     VirtualMemoryTable[Index].VirtualBase    = PcdGet64 (PcdLowMemoryWindowBase);
     VirtualMemoryTable[Index].Length         = PcdGet32 (PcdLowMemoryWindowSize);
     VirtualMemoryTable[Index].Attributes     = CacheAttributes;
+  }
+
+  //
+  // EL2 ANS broker window (native profile). Device memory; the hypervisor traps every
+  // access. Without this entry the ExitBootServices ownership handoff faulted (ANS001-R5).
+  //
+  if (PcdGet32 (PcdAnsBrokerWindowSize) != 0) {
+    VirtualMemoryTable[++Index].PhysicalBase = PcdGet64 (PcdAnsBrokerWindowBase);
+    VirtualMemoryTable[Index].VirtualBase    = PcdGet64 (PcdAnsBrokerWindowBase);
+    VirtualMemoryTable[Index].Length         = PcdGet32 (PcdAnsBrokerWindowSize);
+    VirtualMemoryTable[Index].Attributes     = ARM_MEMORY_REGION_ATTRIBUTE_DEVICE;
   }
 
 

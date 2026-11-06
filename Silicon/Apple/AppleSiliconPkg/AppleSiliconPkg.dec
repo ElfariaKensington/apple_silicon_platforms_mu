@@ -30,6 +30,11 @@
   gAppleSiliconPkgTokenSpaceGuid.PcdLowMemoryWindowBase|0|UINT64|0x00004903
   gAppleSiliconPkgTokenSpaceGuid.PcdLowMemoryWindowSize|0|UINT32|0x00004904
   gAppleSiliconPkgTokenSpaceGuid.PcdLowMemoryWindowBackingBase|0|UINT64|0x00004905
+  # EL2 ANS broker MMIO window (native ANS profile only). It lies outside every Apple MMIO
+  # range in the stage-1 map, so the ExitBootServices handoff gate faulted without it
+  # (ANS001-R5). Size 0 = not mapped.
+  gAppleSiliconPkgTokenSpaceGuid.PcdAnsBrokerWindowBase|0|UINT64|0x00004906
+  gAppleSiliconPkgTokenSpaceGuid.PcdAnsBrokerWindowSize|0|UINT32|0x00004907
   gAppleSiliconPkgTokenSpaceGuid.PcdCDBootFile|{ 0x27, 0xed, 0x1f, 0x27, 0x40, 0x34, 0x47, 0xe4, 0x97, 0x90, 0xdc, 0xaa, 0x11, 0xaa, 0x6b, 0xf4 }|VOID*|0x00003903
   gAppleSiliconPkgTokenSpaceGuid.PcdAppleNumGpios|255|UINT8|0x00004701
 

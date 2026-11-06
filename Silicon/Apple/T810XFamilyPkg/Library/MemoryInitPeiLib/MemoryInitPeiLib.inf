@@ -48,6 +48,8 @@
   gAppleSiliconPkgTokenSpaceGuid.PcdLowMemoryWindowBase
   gAppleSiliconPkgTokenSpaceGuid.PcdLowMemoryWindowSize
   gAppleSiliconPkgTokenSpaceGuid.PcdLowMemoryWindowBackingBase
+  gAppleSiliconPkgTokenSpaceGuid.PcdAnsBrokerWindowBase
+  gAppleSiliconPkgTokenSpaceGuid.PcdAnsBrokerWindowSize
   gArmTokenSpaceGuid.PcdFdSize
 
   gAppleSiliconPkgTokenSpaceGuid.PcdSystemMemoryUefiRegionSize
