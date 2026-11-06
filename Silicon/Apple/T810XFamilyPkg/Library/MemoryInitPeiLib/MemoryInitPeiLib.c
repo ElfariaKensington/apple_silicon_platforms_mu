@@ -28,6 +28,7 @@
 #include <Library/AppleDTLib.h>
 #include <Library/VirtualDisplayValidation.h>
 #include <Library/AgxLocalReserveValidation.h>
+#include <Library/RamCarveoutReservation.h>
 #include <Library/PreloadedRamdisk.h>
 
 //Device memory map configuration file for UEFI (this is to help with pagetable initialization)
@@ -159,6 +160,93 @@ STATIC BOOLEAN AgxLocalReserveHobContains (IN UINT64 Base, IN UINT64 Bytes)
 }
 
 
+//
+// iBoot carveouts inside guest RAM (/chosen/carveout-memory-map) have no named owner and
+// m1n1 may remove them from stage-2, so the OS must never be given them.  Reserve them
+// as EfiReservedMemoryType after every other PEI reservation; ranges already owned by
+// the platform are subtracted by the planner, so those reservations are unchanged.
+//
+STATIC VOID
+ReserveRamCarveouts (
+  IN CONST RAM_CARVEOUT_EXCLUSION  *Excluded,
+  IN UINTN                         ExcludedCount
+  )
+{
+  RAM_CARVEOUT_RANGE  Carveouts[RAM_CARVEOUT_MAX_INPUT];
+  RAM_CARVEOUT_RANGE  Plan[RAM_CARVEOUT_MAX_RANGES];
+  UINTN               CarveoutCount;
+  UINTN               PlanCount;
+  UINTN               Index;
+  UINT64              RamBase;
+  UINT64              RamEnd;
+  dt_node_t           *Node;
+
+  RamBase = PcdGet64 (PcdSystemMemoryBase);
+  RamEnd  = RamBase + PcdGet64 (PcdSystemMemorySize);
+  Node = dt_get ("/chosen/carveout-memory-map");
+  if (Node == NULL) {
+    DEBUG ((DEBUG_INFO, "MemoryInitPeiLib: no carveout-memory-map, no carveout reserved\n"));
+    return;
+  }
+
+  CarveoutCount = 0;
+  for (Index = 0; Index <= RAM_CARVEOUT_MAX_ID; ++Index) {
+    CHAR8   Name[24];
+    size_t  Length = 0;
+    UINT64  Range[2];
+    VOID    *Value;
+
+    AsciiSPrint (Name, sizeof (Name), "region-id-%u", (UINT32)Index);
+    Value = dt_node_prop (Node, Name, &Length);
+    if ((Value == NULL) || (Length < sizeof (Range))) {
+      continue;
+    }
+    {
+      // ADT property data is only 4-byte aligned: copy bytewise (no BaseMemoryLib here).
+      CONST UINT8  *Source = (CONST UINT8 *)Value;
+      UINT8        *Target = (UINT8 *)Range;
+      UINTN        Byte;
+      for (Byte = 0; Byte < sizeof (Range); ++Byte) {
+        Target[Byte] = Source[Byte];
+      }
+    }
+    if ((Range[1] == 0) || (Range[0] >= RamEnd) || (Range[0] + Range[1] <= RamBase)) {
+      continue;
+    }
+    if (CarveoutCount >= RAM_CARVEOUT_MAX_INPUT) {
+      DEBUG ((DEBUG_ERROR, "MemoryInitPeiLib: too many carveouts in RAM, none reserved\n"));
+      ASSERT (FALSE);
+      return;
+    }
+    Carveouts[CarveoutCount].Base = Range[0];
+    Carveouts[CarveoutCount].Size = Range[1];
+    ++CarveoutCount;
+  }
+
+  if (!RamCarveoutPlan (Carveouts, CarveoutCount, RamBase, RamEnd - RamBase,
+                        Excluded, ExcludedCount, Plan, RAM_CARVEOUT_MAX_RANGES, &PlanCount)) {
+    DEBUG ((DEBUG_ERROR, "MemoryInitPeiLib: invalid carveout plan, none reserved\n"));
+    ASSERT (FALSE);
+    return;
+  }
+
+  for (Index = 0; Index < PlanCount; ++Index) {
+    if (!AgxLocalReserveHobContains (Plan[Index].Base, Plan[Index].Size)) {
+      // ReserveMemoryRegion() only splits a single system-memory HOB.
+      DEBUG ((DEBUG_ERROR, "MemoryInitPeiLib: carveout 0x%llx + 0x%llx not in one RAM HOB\n",
+              Plan[Index].Base, Plan[Index].Size));
+      ASSERT (FALSE);
+      continue;
+    }
+    DEBUG ((DEBUG_INFO, "MemoryInitPeiLib: reserving iBoot carveout 0x%llx + 0x%llx\n",
+            Plan[Index].Base, Plan[Index].Size));
+    ReserveMemoryRegion (Plan[Index].Base, (UINT32)Plan[Index].Size);
+    BuildMemoryAllocationHob (Plan[Index].Base, Plan[Index].Size, EfiReservedMemoryType);
+  }
+}
+
+
+
 STATIC BOOLEAN AgxLocalReserveHobsSafe (IN UINT64 Base, IN UINT64 Bytes)
 {
   EFI_PEI_HOB_POINTERS Hob;
@@ -213,6 +301,13 @@ EFI_STATUS EFIAPI MemoryPeim(IN EFI_PHYSICAL_ADDRESS UefiMemoryBase, IN UINT64 U
   BOOLEAN                       Found;
   CONST PRELOADED_RAMDISK_HEADER  *RamdiskHeader;
   PRELOADED_RAMDISK_DECISION    RamdiskDecision;
+  BOOLEAN                       RamdiskReserved;
+  BOOLEAN                       LocalReserved;
+  RAM_CARVEOUT_EXCLUSION        CarveoutExcluded[6];
+  UINTN                         CarveoutExcludedCount;
+
+  RamdiskReserved = FALSE;
+  LocalReserved   = FALSE;
 
   // build up virtual memory map
   BuildVirtualMemoryMap(&MemoryTable);
@@ -426,6 +521,7 @@ EFI_STATUS EFIAPI MemoryPeim(IN EFI_PHYSICAL_ADDRESS UefiMemoryBase, IN UINT64 U
         PcdGet32 (PcdPreloadedRamdiskMaxSize)
         );
       RamdiskDecision.Present = 1;
+      RamdiskReserved = TRUE;
       RamdiskDecision.PayloadBase = PcdGet64 (PcdPreloadedRamdiskBase) + PRELOADED_RAMDISK_PAYLOAD_OFFSET;
       RamdiskDecision.PayloadSize = RamdiskHeader->Size;
     } else {
@@ -512,7 +608,30 @@ EFI_STATUS EFIAPI MemoryPeim(IN EFI_PHYSICAL_ADDRESS UefiMemoryBase, IN UINT64 U
     // M2-f2c: exactly the published size; the rest stays system memory.
     ReserveMemoryRegion (LocalBase, (UINT32)LocalBytes);
     BuildMemoryAllocationHob (LocalBase, LocalBytes, EfiReservedMemoryType);
+    LocalReserved = TRUE;
   }
+
+  CarveoutExcludedCount = 0;
+  CarveoutExcluded[CarveoutExcludedCount++] = (RAM_CARVEOUT_EXCLUSION){UefiMemoryBase, UefiMemorySize, TRUE};
+  if (PcdGet32 (PcdFdSize) != 0) {
+    CarveoutExcluded[CarveoutExcludedCount++] = (RAM_CARVEOUT_EXCLUSION){PcdGet64 (PcdFdBaseAddress),
+                                                                       PcdGet32 (PcdFdSize), TRUE};
+  }
+  if (FrameBufferSize != 0) {
+    CarveoutExcluded[CarveoutExcludedCount++] = (RAM_CARVEOUT_EXCLUSION){FrameBufferBase, FrameBufferSize, FALSE};
+  }
+  if (RamdiskReserved) {
+    CarveoutExcluded[CarveoutExcludedCount++] = (RAM_CARVEOUT_EXCLUSION){PcdGet64 (PcdPreloadedRamdiskBase),
+                                                                       PcdGet32 (PcdPreloadedRamdiskMaxSize), FALSE};
+  }
+  if (PcdGet32 (PcdLowMemoryWindowSize) != 0) {
+    CarveoutExcluded[CarveoutExcludedCount++] = (RAM_CARVEOUT_EXCLUSION){PcdGet64 (PcdLowMemoryWindowBackingBase),
+                                                                       PcdGet32 (PcdLowMemoryWindowSize), FALSE};
+  }
+  if (LocalReserved) {
+    CarveoutExcluded[CarveoutExcludedCount++] = (RAM_CARVEOUT_EXCLUSION){LocalBase, LocalBytes, FALSE};
+  }
+  ReserveRamCarveouts (CarveoutExcluded, CarveoutExcludedCount);
 
   // Build Memory Allocation Hob
   InitMmu (MemoryTable);
