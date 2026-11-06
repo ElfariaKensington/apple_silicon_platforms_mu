@@ -1,0 +1,31 @@
+/* SPDX-License-Identifier: BSD-2-Clause-Patent OR MIT */
+
+#include <IndustryStandard/Acpi.h>
+#include <IndustryStandard/MemoryMappedConfigurationSpaceAccessTable.h>
+
+#pragma pack(1)
+typedef struct {
+  EFI_ACPI_MEMORY_MAPPED_CONFIGURATION_BASE_ADDRESS_TABLE_HEADER Header;
+  EFI_ACPI_MEMORY_MAPPED_ENHANCED_CONFIGURATION_SPACE_BASE_ADDRESS_ALLOCATION_STRUCTURE Segment;
+} J316S_MCFG;
+#pragma pack()
+
+STATIC J316S_MCFG Mcfg = {
+  {
+    {
+      SIGNATURE_32 ('M', 'C', 'F', 'G'),
+      sizeof (J316S_MCFG),
+      EFI_ACPI_MEMORY_MAPPED_CONFIGURATION_SPACE_ACCESS_TABLE_REVISION,
+      0,
+      { 'A', 'P', 'P', 'L', 'E', ' ' },
+      SIGNATURE_64 ('J', '3', '1', '6', 'S', 'P', 'E', ' '),
+      1,
+      SIGNATURE_32 ('A', 'P', 'P', 'L'),
+      1
+    },
+    0
+  },
+  { 0x690000000ULL, 0, 0, 0, 0 }
+};
+
+VOID *CONST ReferenceAcpiTable = &Mcfg;

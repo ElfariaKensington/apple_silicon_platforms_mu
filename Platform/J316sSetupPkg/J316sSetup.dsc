@@ -2,6 +2,9 @@
 
 [Defines]
   DEFINE J316S_SETUP              = TRUE
+  DEFINE J316S_SETUP_USB          = FALSE
+  DEFINE J316S_SETUP_INPUT        = FALSE
+  DEFINE J316S_SETUP_STORAGE      = FALSE
   PLATFORM_NAME                  = J316sSetup
   PLATFORM_GUID                  = 280951a5-55dc-4997-9ea1-8e76a1217424
   PLATFORM_VERSION               = 1.0
@@ -20,7 +23,18 @@
 
 [BuildOptions.common]
   GCC:*_*_AARCH64_CC_FLAGS = -DSILICON_PLATFORM=6000
+!if $(J316S_SETUP_STORAGE) == TRUE
+  *_*_*_CC_FLAGS = -D DISABLE_NEW_DEPRECATED_INTERFACES -D HAS_MEMCPY_INTRINSICS -DJ316S_SETUP -DJ316S_SETUP_STORAGE
+!else
   *_*_*_CC_FLAGS = -D DISABLE_NEW_DEPRECATED_INTERFACES -D HAS_MEMCPY_INTRINSICS -DJ316S_SETUP
+!endif
+!if $(J316S_SETUP_USB) == TRUE
+!if $(J316S_SETUP_INPUT) == TRUE
+  *_*_*_ASLPP_FLAGS = -DJ316S_SETUP_USB -DJ316S_SETUP_INPUT
+!else
+  *_*_*_ASLPP_FLAGS = -DJ316S_SETUP_USB
+!endif
+!endif
 
 [PcdsPatchableInModule.common]
   gArmTokenSpaceGuid.PcdSystemMemoryBase|0x850000000
@@ -34,6 +48,10 @@
   gAppleSiliconPkgTokenSpaceGuid.PcdAppleSocIdentifier|0x6000
   gAppleSiliconPkgTokenSpaceGuid.PcdSmbiosSystemModel|"MacBook Pro (16-inch, M1 Pro, 2021)"
   gAppleSiliconPkgTokenSpaceGuid.PcdSmbiosSystemModelNumber|"MacBookPro18,1"
+  gAppleSiliconPkgTokenSpaceGuid.PcdSmbiosSystemFamily|"MacBook Pro"
+  gAppleSiliconPkgTokenSpaceGuid.PcdFrameBufferWidth|1728
+  gAppleSiliconPkgTokenSpaceGuid.PcdFrameBufferHeight|1117
+  gAppleSiliconPkgTokenSpaceGuid.PcdFrameBufferPixelBpp|32
   gAppleSiliconPkgTokenSpaceGuid.PcdSmbiosCpuIdentifier|"T6000"
   gAppleSiliconPkgTokenSpaceGuid.PcdSmbiosCpuModel|"Apple M1 Pro"
   gAppleSiliconPkgTokenSpaceGuid.PcdCoreCount|10
@@ -56,16 +74,40 @@
   gEmbeddedTokenSpaceGuid.PcdPrePiCpuIoSize|40
   gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemRevision|0x00006000
   gEfiMdeModulePkgTokenSpaceGuid.PcdResetOnMemoryTypeInformationChange|FALSE
+!if $(J316S_SETUP_STORAGE) == TRUE
+  gArmTokenSpaceGuid.PcdPciBusMin|0
+  gArmTokenSpaceGuid.PcdPciBusMax|0
+  gArmTokenSpaceGuid.PcdPciMmio32Base|0xC0000000
+  gArmTokenSpaceGuid.PcdPciMmio32Size|0
+  gArmTokenSpaceGuid.PcdPciMmio64Base|0x400000000
+  gArmTokenSpaceGuid.PcdPciMmio64Size|0x1000000
+  gEfiMdePkgTokenSpaceGuid.PcdPciMmio32Translation|0
+  gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress|0x690000000
+  gEmbeddedTokenSpaceGuid.PcdDmaDeviceOffset|0
+!endif
+
+[PcdsDynamicDefault.common]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoHorizontalResolution|1728
+  gEfiMdeModulePkgTokenSpaceGuid.PcdVideoVerticalResolution|1117
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupVideoHorizontalResolution|1728
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupVideoVerticalResolution|1117
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutRow|25
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutColumn|80
+  gEfiMdeModulePkgTokenSpaceGuid.PcdConOutRow|25
+  gEfiMdeModulePkgTokenSpaceGuid.PcdConOutColumn|80
 
 [LibraryClasses.common]
   MemoryInitPeiLib|T810XFamilyPkg/Library/MemoryInitPeiLib/MemoryInitPeiLib.inf
   MsPlatformDevicesLib|T810XFamilyPkg/Library/MsPlatformDevicesLib/MsPlatformDevicesLib.inf
 
 [Components.common]
+!if $(J316S_SETUP_STORAGE) == TRUE
+  J316sSetupPkg/AcpiTables/J316sStorageTables.inf
+!else
   J316sSetupPkg/AcpiTables/J316sDeviceTables.inf
+!endif
   J316sSetupPkg/AcpiTables/J316sCpuTables.inf
-  AppleSiliconPkg/Drivers/WindowsAutoBootDxe/WindowsAutoBootDxe.inf
+  MacBookAirFamilyPkg/AcpiTables/DeviceFamilyAcpiTables.inf
 
-!include MacBookAirFamilyPkg/MacBookAirFamily.dsc.inc
 !include AppleSiliconPkg/AppleSiliconPkg.dsc.inc
 !include AppleSiliconPkg/FrontpageDsc.inc

@@ -18,6 +18,8 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <Guid/DfciPacketHeader.h>
 
 #include <Protocol/OnScreenKeyboard.h>
+#include <Protocol/LoadedImage.h>
+#include <Protocol/SimpleFileSystem.h>
 #include <Protocol/TpmPpProtocol.h>
 
 #include <Library/BaseMemoryLib.h>
@@ -42,6 +44,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <Library/PowerServicesLib.h>
 #include <Library/ThermalServicesLib.h>
 #include <Library/UefiBootServicesTableLib.h>
+#include <Library/UefiBootManagerLib.h>
 #include <Library/UefiLib.h>
 #include <Library/UefiRuntimeServicesTableLib.h>
 #include <Library/MsNVBootReasonLib.h>
@@ -778,6 +781,140 @@ DeviceBootManagerBeforeConsole (
   return GetPlatformPreferredConsole (DevicePath);
 }
 
+#ifdef J316S_SETUP
+#ifdef J316S_SETUP_STORAGE
+STATIC
+VOID
+BootWindowsFromNvme (
+  VOID
+  )
+{
+  EFI_HANDLE  *Handles;
+  UINTN       Count;
+  EFI_STATUS  Status;
+
+  Status = gBS->LocateHandleBuffer (ByProtocol, &gEfiSimpleFileSystemProtocolGuid,
+                                   NULL, &Count, &Handles);
+  if (EFI_ERROR (Status)) {
+    return;
+  }
+  for (UINTN Index = 0; Index < Count; Index++) {
+    EFI_DEVICE_PATH_PROTOCOL *Node = DevicePathFromHandle (Handles[Index]);
+    BOOLEAN Nvme = FALSE;
+    BOOLEAN Partition = FALSE;
+    for (; Node != NULL && !IsDevicePathEnd (Node); Node = NextDevicePathNode (Node)) {
+      if (DevicePathType (Node) == MESSAGING_DEVICE_PATH &&
+          DevicePathSubType (Node) == MSG_NVME_NAMESPACE_DP) {
+        Nvme = TRUE;
+      }
+      if (DevicePathType (Node) == MEDIA_DEVICE_PATH &&
+          DevicePathSubType (Node) == MEDIA_HARDDRIVE_DP) {
+        Partition = TRUE;
+      }
+    }
+    if (!Nvme || !Partition) {
+      continue;
+    }
+
+    EFI_DEVICE_PATH_PROTOCOL *Path =
+      FileDevicePath (Handles[Index], L"\\EFI\\Microsoft\\Boot\\bootmgfw.efi");
+    if (Path == NULL) {
+      break;
+    }
+    EFI_HANDLE Image = NULL;
+    Status = gBS->LoadImage (FALSE, gImageHandle, Path, NULL, 0, &Image);
+    FreePool (Path);
+    if (EFI_ERROR (Status)) {
+      if (Status == EFI_SECURITY_VIOLATION && Image != NULL) {
+        gBS->UnloadImage (Image);
+      }
+      continue;
+    }
+    FreePool (Handles);
+    EfiSignalEventReadyToBoot ();
+    Status = gBS->StartImage (Image, NULL, NULL);
+    DEBUG ((DEBUG_ERROR, "J316s Setup: installed Windows loader returned %r\n", Status));
+    return;
+  }
+  FreePool (Handles);
+}
+#endif
+
+STATIC
+VOID
+BootWindowsSetupRamDisk (
+  VOID
+  )
+{
+  EFI_HANDLE                    *Handles;
+  UINTN                         HandleCount;
+  EFI_STATUS                    Status;
+
+  Status = gBS->LocateHandleBuffer (ByProtocol, &gEfiSimpleFileSystemProtocolGuid,
+                                   NULL, &HandleCount, &Handles);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "J316s Setup: no filesystem handles: %r\n", Status));
+    return;
+  }
+
+  Status = EFI_NOT_FOUND;
+  for (UINTN Index = 0; Index < HandleCount; Index++) {
+    EFI_DEVICE_PATH_PROTOCOL *Node = DevicePathFromHandle (Handles[Index]);
+    if (Node == NULL) {
+      continue;
+    }
+    for (; !IsDevicePathEnd (Node); Node = NextDevicePathNode (Node)) {
+      if (DevicePathType (Node) == MEDIA_DEVICE_PATH &&
+          DevicePathSubType (Node) == MEDIA_RAM_DISK_DP) {
+        break;
+      }
+    }
+    if (IsDevicePathEnd (Node)) {
+      continue;
+    }
+
+    EFI_DEVICE_PATH_PROTOCOL *LoaderPath =
+      FileDevicePath (Handles[Index], L"\\wimboot.efi");
+    if (LoaderPath == NULL) {
+      Status = EFI_OUT_OF_RESOURCES;
+      break;
+    }
+    EFI_HANDLE LoaderImage = NULL;
+    EfiSignalEventReadyToBoot ();
+    // wimboot reads its inputs from the original filesystem and presents its own disk to Windows.
+    Status = gBS->LoadImage (FALSE, gImageHandle, LoaderPath, NULL, 0, &LoaderImage);
+    FreePool (LoaderPath);
+    if (EFI_ERROR (Status)) {
+      if (Status == EFI_SECURITY_VIOLATION) {
+        gBS->UnloadImage (LoaderImage);
+      }
+      break;
+    }
+
+    EFI_LOADED_IMAGE_PROTOCOL *LoadedImage;
+    Status = gBS->HandleProtocol (LoaderImage, &gEfiLoadedImageProtocolGuid,
+                                  (VOID **)&LoadedImage);
+    if (!EFI_ERROR (Status)) {
+      if (LoadedImage->DeviceHandle != Handles[Index] || LoadedImage->FilePath == NULL) {
+        Status = EFI_INVALID_PARAMETER;
+      } else {
+        STATIC CHAR16 WimbootOptions[] = L"gui rawbcd";
+        LoadedImage->LoadOptions = WimbootOptions;
+        LoadedImage->LoadOptionsSize = sizeof (WimbootOptions);
+        DEBUG ((DEBUG_ERROR, "J316s Setup: starting ARM64 wimboot\n"));
+        Status = gBS->StartImage (LoaderImage, NULL, NULL);
+        DEBUG ((DEBUG_ERROR, "J316s Setup: wimboot returned %r\n", Status));
+        break; // DXE unloads an EFI application when it returns.
+      }
+    }
+    gBS->UnloadImage (LoaderImage);
+    break;
+  }
+  FreePool (Handles);
+  DEBUG ((DEBUG_ERROR, "J316s Setup: Windows RAM disk boot returned %r\n", Status));
+}
+#endif
+
 /**
   Do the device specific action after the console is connected.
 
@@ -814,6 +951,13 @@ DeviceBootManagerAfterConsole (
     }
   }
 
+#ifdef J316S_SETUP
+  EfiBootManagerConnectAll ();
+#ifdef J316S_SETUP_STORAGE
+  BootWindowsFromNvme ();
+#endif
+  BootWindowsSetupRamDisk ();
+#endif
   return GetPlatformConnectList ();
 }
 

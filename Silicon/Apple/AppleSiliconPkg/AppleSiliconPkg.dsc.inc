@@ -74,7 +74,12 @@
 
   #EFI debug settings
   gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x2f
+!ifdef J316S_SETUP
+  # Keep errors, warnings, and initialization/load milestones on the guest console.
+  gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x80000007
+!else
   gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0xFFFFFF4F
+!endif
   gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|320
   gEfiMdePkgTokenSpaceGuid.PcdReportStatusCodePropertyMask|0xff
   #gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x80000002

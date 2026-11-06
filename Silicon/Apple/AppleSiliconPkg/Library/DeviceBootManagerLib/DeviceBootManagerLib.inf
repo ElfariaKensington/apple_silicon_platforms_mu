@@ -36,6 +36,7 @@
   MemoryAllocationLib
   BaseMemoryLib
   DevicePathLib
+  UefiBootManagerLib
   UefiBootServicesTableLib
   UefiRuntimeServicesTableLib
   MsPlatformDevicesLib
@@ -64,6 +65,8 @@
   gDfciSettingsManagerVarNamespace
 
 [Protocols]
+  gEfiLoadedImageProtocolGuid       ## CONSUMES
+  gEfiSimpleFileSystemProtocolGuid  ## CONSUMES
   gMsOSKProtocolGuid                ## CONSUMES
   gMsSWMProtocolGuid                ## CONSUMES
   gTpmPpProtocolGuid                ## CONSUMES

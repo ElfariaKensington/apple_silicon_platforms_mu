@@ -139,6 +139,7 @@ STATIC VOID ReserveMemoryRegion ( IN EFI_PHYSICAL_ADDRESS ReservedRegionBase, IN
   }
 }
 
+#ifndef J316S_SETUP
 STATIC BOOLEAN AgxLocalReserveHobContains (IN UINT64 Base, IN UINT64 Bytes)
 {
   EFI_PEI_HOB_POINTERS Hob;
@@ -192,6 +193,7 @@ STATIC BOOLEAN AgxLocalReserveHobsSafe (IN UINT64 Base, IN UINT64 Bytes)
   }
   return TRUE;
 }
+#endif
 
 //Borrowed from ArmPlatformPkg
 EFI_STATUS EFIAPI MemoryPeim(IN EFI_PHYSICAL_ADDRESS UefiMemoryBase, IN UINT64 UefiMemorySize)
@@ -204,11 +206,13 @@ EFI_STATUS EFIAPI MemoryPeim(IN EFI_PHYSICAL_ADDRESS UefiMemoryBase, IN UINT64 U
   EFI_PHYSICAL_ADDRESS          SystemMemoryTop;
   EFI_PHYSICAL_ADDRESS          ResourceTop;
   EFI_PHYSICAL_ADDRESS          FrameBufferBase;
+#ifndef J316S_SETUP
   EFI_PHYSICAL_ADDRESS          LocalBase;
   UINT64                        LocalHostBase;
   UINT64                        LocalBytes;
   AGX_LOCAL_RANGE               LocalExcluded[5];
   UINTN                         LocalExcludedCount;
+#endif
   UINT64                        FrameBufferSize;
   BOOLEAN                       Found;
   CONST PRELOADED_RAMDISK_HEADER  *RamdiskHeader;
@@ -364,7 +368,15 @@ EFI_STATUS EFIAPI MemoryPeim(IN EFI_PHYSICAL_ADDRESS UefiMemoryBase, IN UINT64 U
   ReserveMemoryRegion (FrameBufferBase, (UINT32)FrameBufferSize);
   BuildMemoryAllocationHob (FrameBufferBase, FrameBufferSize, EfiReservedMemoryType);
   
-  //reserve secondary stacks carveouts passed into cpm-impl-reg 
+#ifdef J316S_SETUP
+  // The copied handoff data stays live in DXE. Host CPU carveouts do not
+  // describe the private RAM assigned to this guest.
+  CONST struct boot_args *BootArgs =
+    (CONST struct boot_args *)(UINTN)PcdGet64 (PcdBootArgsPointer);
+  ReserveMemoryRegion (PcdGet64 (PcdAdtPointer), ALIGN_VALUE (BootArgs->devtree_size, EFI_PAGE_SIZE));
+  ReserveMemoryRegion (PcdGet64 (PcdBootArgsPointer), EFI_PAGE_SIZE);
+#else
+  // Reserve secondary stack carveouts passed in cpm-impl-reg.
   for(int i = 0; i < PcdGet32(PcdCoreCount); i++){
     CHAR8 CpuNodeName[14];
     UINTN CarveoutLength = 0;
@@ -395,8 +407,7 @@ EFI_STATUS EFIAPI MemoryPeim(IN EFI_PHYSICAL_ADDRESS UefiMemoryBase, IN UINT64 U
       ((UINT64)Carveout[3] << 32) | Carveout[2]
     );
   }
-
-
+#endif
 
   //
   // Reserve the window a preloaded RAMDisk is dropped into. Anything larger than a few
@@ -459,6 +470,7 @@ EFI_STATUS EFIAPI MemoryPeim(IN EFI_PHYSICAL_ADDRESS UefiMemoryBase, IN UINT64 U
       );
   }
 
+#ifndef J316S_SETUP
   // m1n1 selects the interval from the live guest layout and proves each
   // stage-2 leaf. Mu owns the OS map: revalidate every known PEI reservation
   // before punching the HOB hole. An invalid published receipt is fatal,
@@ -513,6 +525,7 @@ EFI_STATUS EFIAPI MemoryPeim(IN EFI_PHYSICAL_ADDRESS UefiMemoryBase, IN UINT64 U
     ReserveMemoryRegion (LocalBase, (UINT32)LocalBytes);
     BuildMemoryAllocationHob (LocalBase, LocalBytes, EfiReservedMemoryType);
   }
+#endif
 
   // Build Memory Allocation Hob
   InitMmu (MemoryTable);
@@ -577,6 +590,15 @@ VOID BuildVirtualMemoryMap(OUT ARM_MEMORY_REGION_DESCRIPTOR **VirtualMemoryMap)
   VirtualMemoryTable[++Index] = (ARM_MEMORY_REGION_DESCRIPTOR) {
     Uart, Uart, 0x4000, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE
   };
+#ifdef J316S_SETUP_STORAGE
+  // The storage profile uses an emulated PCI bus and one fixed NVMe BAR.
+  VirtualMemoryTable[++Index] = (ARM_MEMORY_REGION_DESCRIPTOR) {
+    0x690000000ULL, 0x690000000ULL, 0x100000, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE
+  };
+  VirtualMemoryTable[++Index] = (ARM_MEMORY_REGION_DESCRIPTOR) {
+    0x400000000ULL, 0x400000000ULL, 0x1000000, ARM_MEMORY_REGION_ATTRIBUTE_DEVICE
+  };
+#endif
 #else
   //MMIO - PMGR/AIC/Core System Peripherals and PCIe
   VirtualMemoryTable[Index].PhysicalBase = APPLE_CORE_SYSTEM_MMIO_RANGE_1_BASE;
