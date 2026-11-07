@@ -261,7 +261,11 @@ READ_LOCK_STATUS   = TRUE
   INF MdeModulePkg/Universal/Disk/RamDiskDxe/RamDiskDxe.inf
   INF AppleSiliconPkg/Drivers/BootRamdiskHelperDxe/BootRamdiskHelperDxe.inf
 !if $(J313_ANS_NATIVE_PROFILE) == TRUE
+!if $(J313_ANS_INSTALLED_BOOT) == TRUE
+  INF AppleSiliconPkg/Drivers/WindowsAutoBootDxe/WindowsAutoBootAnsInstalled.inf
+!else
   INF AppleSiliconPkg/Drivers/WindowsAutoBootDxe/WindowsAutoBootAnsNative.inf
+!endif
 !else
   INF AppleSiliconPkg/Drivers/WindowsAutoBootDxe/WindowsAutoBootDxe.inf
 !endif

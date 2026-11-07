@@ -24,13 +24,15 @@ a=src.index('EFI_STATUS\nEFIAPI\nCoreStartImage ('); b=src.index('  PERF_START_I
 (out/'start_boundary.h').write_text(src[a:b]+'\n (VOID)ExitDataSize; (VOID)ExitData; (VOID)LastImage; (VOID)HandleDatabaseKey; (VOID)SetJumpFlag; (VOID)Handle;\n return EFI_SUCCESS;\n}\n')
 
 PY
-for kind in native null core source autoboot start; do
+for kind in native null core source installed autoboot start; do
   if [ "$kind" = autoboot ]; then
     set -- "$here/autoboot_source_test.c" "-DANS_TEST_AUTOBOOT_FUNCTIONS=\"$build/autoboot_functions.h\""
   elif [ "$kind" = start ]; then
     set -- "$here/start_image_boundary_test.c" "-DANS_TEST_START_BOUNDARY=\"$build/start_boundary.h\""
   elif [ "$kind" = source ]; then
     set -- "$here/boot_source_test.c"
+  elif [ "$kind" = installed ]; then
+    set -- "$here/installed_source_test.c"
   elif [ "$kind" = core ]; then
     set -- "$here/core_boundary_test.c" "-DANS_TEST_CORE_BOUNDARY=\"$build/core_boundary.h\""
   elif [ "$kind" = null ]; then

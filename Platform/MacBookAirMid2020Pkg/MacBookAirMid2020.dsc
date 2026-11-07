@@ -37,6 +37,9 @@
   J313_AGX_G2_PROFILE            = FALSE
   # Offline native ANS candidate only; never enable before EL2 trap qualification.
   J313_ANS_NATIVE_PROFILE        = FALSE
+  # Installed native boot of the internal Windows (requires J313_ANS_NATIVE_PROFILE): boots only
+  # the pinned Windows ESP below instead of the preloaded WinPE RAMDisk. Never a default.
+  J313_ANS_INSTALLED_BOOT        = FALSE
   # Candidate-only synthetic-interrupt Full Graphics ABI admission profile.
   J313_AGX_ABI_ADMISSION_PROFILE            = FALSE
 
@@ -46,9 +49,16 @@
 
 [PcdsFixedAtBuild.common]
 !if $(J313_ANS_NATIVE_PROFILE) == TRUE
-  # Must equal config/j313-ans.json broker.guest_base/size (root contract test).
+  # Must equal config/j313-ans-installed-boot.json.broker.guest_base/size (root contract test).
   gAppleSiliconPkgTokenSpaceGuid.PcdAnsBrokerWindowBase|0x300010000
   gAppleSiliconPkgTokenSpaceGuid.PcdAnsBrokerWindowSize|0x4000
+!if $(J313_ANS_INSTALLED_BOOT) == TRUE
+  # J313 disk 0 GPT entry "WINESP" (recovery Get-Partition 2026-11-07, firmware path in EXP2225):
+  # HD(5,GPT,F05B9952-EE05-44E1-BCC4-B678A8501B2A,0x1D5AF00,0x20000). Must equal config/j313-ans-installed-boot.json.
+  gAppleSiliconPkgTokenSpaceGuid.PcdAnsInstalledEspStartLba|0x1D5AF00
+  gAppleSiliconPkgTokenSpaceGuid.PcdAnsInstalledEspBlocks|0x20000
+  gAppleSiliconPkgTokenSpaceGuid.PcdAnsInstalledEspGuid|{ 0x52, 0x99, 0x5B, 0xF0, 0x05, 0xEE, 0xE1, 0x44, 0xBC, 0xC4, 0xB6, 0x78, 0xA8, 0x50, 0x1B, 0x2A }
+!endif
 !endif
   gAppleSiliconPkgTokenSpaceGuid.PcdSmbiosSystemModel|"MacBook Air (Mid 2020)"
   gAppleSiliconPkgTokenSpaceGuid.PcdSmbiosSystemModelNumber|"MacBookAir10,1"
@@ -82,7 +92,11 @@
   # Same idea: standalone, copied onto the RAMDisk, never packaged into the FV.
   AppleSiliconPkg/Application/BootLaunchApp/BootLaunchApp.inf
 !if $(J313_ANS_NATIVE_PROFILE) == TRUE
+!if $(J313_ANS_INSTALLED_BOOT) == TRUE
+  AppleSiliconPkg/Drivers/WindowsAutoBootDxe/WindowsAutoBootAnsInstalled.inf
+!else
   AppleSiliconPkg/Drivers/WindowsAutoBootDxe/WindowsAutoBootAnsNative.inf
+!endif
 !else
   AppleSiliconPkg/Drivers/WindowsAutoBootDxe/WindowsAutoBootDxe.inf
 !endif

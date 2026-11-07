@@ -10,6 +10,8 @@
 #include "../AppleAnsExitBootServicesGateLib.c"
 #endif
 UINT64 gTestPreloadBase;
+UINT64 gTestEspStart, gTestEspBlocks;
+UINT8 gTestEspGuid[16];
 UINT32 gTestPreloadSize;
 UINTN GetDevicePathSize (CONST EFI_DEVICE_PATH_PROTOCOL *P) { (VOID)P; return 0; }
 BOOLEAN IsDevicePathValid (CONST EFI_DEVICE_PATH_PROTOCOL *P, UINTN M) { (VOID)P; (VOID)M; return FALSE; }

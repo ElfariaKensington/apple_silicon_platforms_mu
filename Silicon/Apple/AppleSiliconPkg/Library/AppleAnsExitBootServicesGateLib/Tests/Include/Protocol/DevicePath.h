@@ -3,6 +3,12 @@
 #include <Uefi.h>
 typedef struct { UINT8 Type,SubType,Length[2]; } EFI_DEVICE_PATH_PROTOCOL;
 #define MEDIA_DEVICE_PATH 4
+#define ACPI_DEVICE_PATH 2
+#define ACPI_DP 1
+#define HARDWARE_DEVICE_PATH 1
+#define HW_PCI_DP 1
+#define MESSAGING_DEVICE_PATH 3
+#define MSG_NVME_NAMESPACE_DP 0x17
 #define MEDIA_RAM_DISK_DP 9
 #define MEDIA_HARDDRIVE_DP 1
 #define MEDIA_FILEPATH_DP 4

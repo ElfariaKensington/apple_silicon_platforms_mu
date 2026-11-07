@@ -93,7 +93,7 @@ DxeStartImageGate (IN EFI_HANDLE ImageHandle, IN UINT16 Subsystem,
   if (Subsystem == EFI_IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER ||
       Subsystem == EFI_IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER) return EFI_SUCCESS;
   if (!ImageHandle || Subsystem != EFI_IMAGE_SUBSYSTEM_EFI_APPLICATION ||
-      mApprovedBootImage || !AppleAnsPreloadedBootPath (DevicePath, TRUE))
+      mApprovedBootImage || !AppleAnsNativeBootPath (DevicePath, TRUE))
     return Fail (6, EFI_SECURITY_VIOLATION);
   mApprovedBootImage = ImageHandle;
   return EFI_SUCCESS;

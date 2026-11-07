@@ -565,7 +565,11 @@
     <LibraryClasses>
 !ifdef J313_ANS_NATIVE_PROFILE
 !if $(J313_ANS_NATIVE_PROFILE) == TRUE
+!if $(J313_ANS_INSTALLED_BOOT) == TRUE
+    DxeExitBootServicesGateLib|AppleSiliconPkg/Library/AppleAnsExitBootServicesGateLib/AppleAnsInstalledExitBootServicesGateLib.inf
+!else
     DxeExitBootServicesGateLib|AppleSiliconPkg/Library/AppleAnsExitBootServicesGateLib/AppleAnsExitBootServicesGateLib.inf
+!endif
 !else
     DxeExitBootServicesGateLib|MdeModulePkg/Library/DxeExitBootServicesGateLibNull/DxeExitBootServicesGateLibNull.inf
 !endif

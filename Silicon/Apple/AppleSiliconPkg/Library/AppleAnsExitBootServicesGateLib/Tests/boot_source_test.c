@@ -5,6 +5,8 @@
 #include <Library/AppleAnsBootSource.h>
 #include "../AppleAnsExitBootServicesGateLib.c"
 UINT64 gTestPreloadBase;
+UINT64 gTestEspStart, gTestEspBlocks;
+UINT8 gTestEspGuid[16];
 UINT32 gTestPreloadSize = 0x10000;
 STATIC UINT8 Header[16], Path[256];
 STATIC UINTN PathBytes;

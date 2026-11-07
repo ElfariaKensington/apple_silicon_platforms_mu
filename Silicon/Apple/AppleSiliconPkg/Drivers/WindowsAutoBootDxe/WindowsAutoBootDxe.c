@@ -14,15 +14,39 @@
 #include <Protocol/BlockIo.h>
 #include <Protocol/LoadedImage.h>
 #include <Protocol/SimpleFileSystem.h>
-#ifdef APPLE_ANS_RAMDISK_ONLY
+#if defined (APPLE_ANS_RAMDISK_ONLY) || defined (APPLE_ANS_INSTALLED_ONLY)
+#define APPLE_ANS_NATIVE_BOOT 1
 #include <Library/AppleAnsBootSource.h>
 #include <Library/BaseLib.h>
 STATIC volatile EFI_STATUS mNativeBootFailure;
 STATIC VOID NativeBootFailed (EFI_STATUS Status)
 {
   mNativeBootFailure = Status;
-  DEBUG ((DEBUG_ERROR, "ANS qualification: no eligible preloaded WinPE boot, status %r\n", Status));
+  DEBUG ((DEBUG_ERROR, "ANS native boot: no eligible boot source, status %r\n", Status));
   CpuDeadLoop ();
+}
+#endif
+#ifdef APPLE_ANS_INSTALLED_ONLY
+#include <Protocol/PciIo.h>
+/* Installed profile: BDS never reaches its ConnectAll fallback because ReadyToBoot is
+ * terminal, so bind NvmExpress -> Partition -> FAT on the emulated PCI NVMe here. */
+STATIC
+VOID
+ConnectPciControllers (
+  VOID
+  )
+{
+  EFI_HANDLE  *Handles = NULL;
+  UINTN       HandleCount = 0;
+  if (EFI_ERROR (gBS->LocateHandleBuffer (ByProtocol, &gEfiPciIoProtocolGuid, NULL,
+                                          &HandleCount, &Handles))) {
+    DEBUG ((DEBUG_ERROR, "WindowsAutoBootDxe: no PCI controllers\n"));
+    return;
+  }
+  for (UINTN Index = 0; Index < HandleCount; Index++) {
+    gBS->ConnectController (Handles[Index], NULL, NULL, TRUE);
+  }
+  FreePool (Handles);
 }
 #endif
 
@@ -44,6 +68,9 @@ ConnectAllBlockIoHandles (
   EFI_HANDLE  *Handles;
   UINTN       HandleCount;
 
+#ifdef APPLE_ANS_INSTALLED_ONLY
+  ConnectPciControllers ();
+#endif
   Handles = NULL;
   HandleCount = 0;
   Status = gBS->LocateHandleBuffer (
@@ -62,8 +89,8 @@ ConnectAllBlockIoHandles (
   // children of the emulated NVMe yet.  The internal ESP therefore has no SimpleFS
   // handle until its BlockIo ancestry is recursively connected.
   for (UINTN Index = 0; Index < HandleCount; Index++) {
-#ifdef APPLE_ANS_RAMDISK_ONLY
-    if (!AppleAnsPreloadedBootPath (DevicePathFromHandle (Handles[Index]), FALSE)) continue;
+#ifdef APPLE_ANS_NATIVE_BOOT
+    if (!AppleAnsNativeBootPath (DevicePathFromHandle (Handles[Index]), FALSE)) continue;
 #endif
     gBS->ConnectController (Handles[Index], NULL, NULL, TRUE);
   }
@@ -169,8 +196,8 @@ TryStartWindowsFromHandle (
     return TRUE;
   }
 
-#ifdef APPLE_ANS_RAMDISK_ONLY
-  if (!AppleAnsPreloadedBootPath (DevicePathFromHandle (FileSystemHandle), FALSE)) return FALSE;
+#ifdef APPLE_ANS_NATIVE_BOOT
+  if (!AppleAnsNativeBootPath (DevicePathFromHandle (FileSystemHandle), FALSE)) return FALSE;
 #endif
 
   BlockIo = NULL;
@@ -196,7 +223,7 @@ TryStartWindowsFromHandle (
 
   mWindowsStarted = TRUE;
   Status = StartWindowsFromHandle (FileSystemHandle);
-#ifdef APPLE_ANS_RAMDISK_ONLY
+#ifdef APPLE_ANS_NATIVE_BOOT
   // Any returned loader, including EFI_SUCCESS, must not resume BDS fallback.
   NativeBootFailed (Status);
 #endif
@@ -223,7 +250,7 @@ WindowsAutoBootFileSystemNotify (
   (VOID)Event;
   (VOID)Context;
 
-#ifdef APPLE_ANS_RAMDISK_ONLY
+#ifdef APPLE_ANS_NATIVE_BOOT
   // The preloaded RAM disk publishes its SimpleFS during DXE, before EndOfDxe, where
   // DxeDeferImageLoadLib defers any 3rd-party image with EFI_ACCESS_DENIED (ANS001-R4).
   // Native qualification therefore starts the loader only from ReadyToBoot, which BDS
@@ -263,7 +290,7 @@ WindowsAutoBootReadyToBoot (
   (VOID)Context;
   gBS->CloseEvent (Event);
   mReadyToBootEvent = NULL;
-#ifdef APPLE_ANS_RAMDISK_ONLY
+#ifdef APPLE_ANS_NATIVE_BOOT
   if (mWindowsStarted) return; // ReadyToBoot can be raised by the approved loader.
 #endif
 
@@ -280,7 +307,7 @@ WindowsAutoBootReadyToBoot (
                   );
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "WindowsAutoBootDxe: no filesystems: %r\n", Status));
-#ifdef APPLE_ANS_RAMDISK_ONLY
+#ifdef APPLE_ANS_NATIVE_BOOT
     NativeBootFailed (Status);
 #endif
     return;
@@ -294,7 +321,7 @@ WindowsAutoBootReadyToBoot (
   }
 
   FreePool (Handles);
-#ifdef APPLE_ANS_RAMDISK_ONLY
+#ifdef APPLE_ANS_NATIVE_BOOT
   NativeBootFailed (EFI_NOT_FOUND);
 #endif
 }

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <Uefi.h>
 #define APPLE_ANS_RAMDISK_ONLY 1
+#define APPLE_ANS_NATIVE_BOOT 1
 #define DEBUG(x) ((VOID)0)
 #define ByProtocol 1
 #define OUT
@@ -38,7 +39,7 @@ static struct test_services {EFI_STATUS(*HandleProtocol)(EFI_HANDLE,VOID*,VOID**
 static struct test_services *gBS=&services;
 static VOID FreePool(VOID*p) {(VOID)p;}
 static VOID *DevicePathFromHandle(EFI_HANDLE h) {return h;}
-static BOOLEAN AppleAnsPreloadedBootPath(VOID*p,BOOLEAN file)
+static BOOLEAN AppleAnsNativeBootPath(VOID*p,BOOLEAN file)
 {assert(!file);return !missing && p==(VOID*)2;}
 static BOOLEAN HasWindowsFallbackLoader(EFI_SIMPLE_FILE_SYSTEM_PROTOCOL*fs) {(VOID)fs;return TRUE;}
 static EFI_STATUS StartWindowsFromHandle(EFI_HANDLE h) {assert(h==(EFI_HANDLE)2);starts++;return EFI_SUCCESS;}
