@@ -19,6 +19,16 @@
 
  DefinitionBlock("DSDT.aml", "DSDT", 0x02, "Apple", "J31x", 0x8103) {
     Scope(\_SB) {
+        // Platform-wide _OSC: grant what the OS requests, notably CPPC (bit 5), CPPC
+        // revision 2 (bit 6) and flexible CPPC register address spaces (bit 7) so FxPPM
+        // uses the SystemMemory _CPC registers below.
+        Method(_OSC, 4) {
+            CreateDWordField(Arg3, 0x00, PCDW)
+            If (Arg0 != ToUUID("0811b06e-4a27-44f9-8d60-3cbbc22e7b48")) {
+                PCDW |= 0x04                          // unrecognized UUID
+            }
+            Return (Arg3)
+        }
         // Generated from config/j313-apple-input.json.  Keep the firmware,
         // hypervisor, and Windows driver resource contracts byte-for-byte in
         // sync; never duplicate these machine-specific values in this DSDT.
@@ -262,6 +272,34 @@
                 Device(CPU0) {
                     Name(_HID, "ACPI0007")
                     Name(_UID, 0)
+                    // ACPI CPPC (m1n1 hv_cppc.c page 0x300010000); performance unit = MHz.
+                    Name(_CPC, Package() {
+                        23,          // NumEntries
+                        3,           // Revision
+                        2064,        // Highest Performance
+                        2064,        // Nominal Performance
+                        600,         // Lowest Nonlinear Performance
+                        600,         // Lowest Performance
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Guaranteed Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010000, 3) }, // Desired Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Minimum Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
+                        0,           // Counter Wraparound Time (none)
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010008, 4) }, // Reference Performance Counter
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010010, 4) }, // Delivered Performance Counter
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010018, 3) }, // Performance Limited Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // CPPC Enable Register
+                        0,           // Autonomous Selection Enable
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Autonomous Activity Window Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Energy Performance Preference Register
+                        2064,        // Reference Performance
+                        600,         // Lowest Frequency (MHz)
+                        2064         // Nominal Frequency (MHz)
+                    })
+                    // One P-state per cluster; the HV coordinates (max over the cluster).
+                    Name(_PSD, Package() { Package() { 5, 0, 0, 0xFE, 4 } })
                     // Method (_LPI, 0, NotSerialized) {
                     // return(PLPI)
                     // }
@@ -273,6 +311,34 @@
                 Device(CPU1) {
                     Name(_HID, "ACPI0007")
                     Name(_UID, 1)
+                    // ACPI CPPC (m1n1 hv_cppc.c page 0x300010000); performance unit = MHz.
+                    Name(_CPC, Package() {
+                        23,          // NumEntries
+                        3,           // Revision
+                        2064,        // Highest Performance
+                        2064,        // Nominal Performance
+                        600,         // Lowest Nonlinear Performance
+                        600,         // Lowest Performance
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Guaranteed Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010040, 3) }, // Desired Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Minimum Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
+                        0,           // Counter Wraparound Time (none)
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010048, 4) }, // Reference Performance Counter
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010050, 4) }, // Delivered Performance Counter
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010058, 3) }, // Performance Limited Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // CPPC Enable Register
+                        0,           // Autonomous Selection Enable
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Autonomous Activity Window Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Energy Performance Preference Register
+                        2064,        // Reference Performance
+                        600,         // Lowest Frequency (MHz)
+                        2064         // Nominal Frequency (MHz)
+                    })
+                    // One P-state per cluster; the HV coordinates (max over the cluster).
+                    Name(_PSD, Package() { Package() { 5, 0, 0, 0xFE, 4 } })
                     // Method (_LPI, 0, NotSerialized) {
                     // return(PLPI)
                     // }
@@ -283,6 +349,34 @@
                 Device(CPU2) {
                     Name(_HID, "ACPI0007")
                     Name(_UID, 2)
+                    // ACPI CPPC (m1n1 hv_cppc.c page 0x300010000); performance unit = MHz.
+                    Name(_CPC, Package() {
+                        23,          // NumEntries
+                        3,           // Revision
+                        2064,        // Highest Performance
+                        2064,        // Nominal Performance
+                        600,         // Lowest Nonlinear Performance
+                        600,         // Lowest Performance
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Guaranteed Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010080, 3) }, // Desired Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Minimum Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
+                        0,           // Counter Wraparound Time (none)
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010088, 4) }, // Reference Performance Counter
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010090, 4) }, // Delivered Performance Counter
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010098, 3) }, // Performance Limited Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // CPPC Enable Register
+                        0,           // Autonomous Selection Enable
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Autonomous Activity Window Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Energy Performance Preference Register
+                        2064,        // Reference Performance
+                        600,         // Lowest Frequency (MHz)
+                        2064         // Nominal Frequency (MHz)
+                    })
+                    // One P-state per cluster; the HV coordinates (max over the cluster).
+                    Name(_PSD, Package() { Package() { 5, 0, 0, 0xFE, 4 } })
                     // Method (_LPI, 0, NotSerialized) {
                     // return(PLPI)
                     // }
@@ -293,6 +387,34 @@
                 Device(CPU3) {
                     Name(_HID, "ACPI0007")
                     Name(_UID, 3)
+                    // ACPI CPPC (m1n1 hv_cppc.c page 0x300010000); performance unit = MHz.
+                    Name(_CPC, Package() {
+                        23,          // NumEntries
+                        3,           // Revision
+                        2064,        // Highest Performance
+                        2064,        // Nominal Performance
+                        600,         // Lowest Nonlinear Performance
+                        600,         // Lowest Performance
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Guaranteed Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x3000100C0, 3) }, // Desired Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Minimum Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
+                        0,           // Counter Wraparound Time (none)
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x3000100C8, 4) }, // Reference Performance Counter
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x3000100D0, 4) }, // Delivered Performance Counter
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x3000100D8, 3) }, // Performance Limited Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // CPPC Enable Register
+                        0,           // Autonomous Selection Enable
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Autonomous Activity Window Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Energy Performance Preference Register
+                        2064,        // Reference Performance
+                        600,         // Lowest Frequency (MHz)
+                        2064         // Nominal Frequency (MHz)
+                    })
+                    // One P-state per cluster; the HV coordinates (max over the cluster).
+                    Name(_PSD, Package() { Package() { 5, 0, 0, 0xFE, 4 } })
                     // Method (_LPI, 0, NotSerialized) {
                     // return(PLPI)
                     // }
@@ -311,6 +433,34 @@
                 Device(CPU4) {
                     Name(_HID, "ACPI0007")
                     Name(_UID, 4)
+                    // ACPI CPPC (m1n1 hv_cppc.c page 0x300010000); performance unit = MHz.
+                    Name(_CPC, Package() {
+                        23,          // NumEntries
+                        3,           // Revision
+                        2988,        // Highest Performance
+                        2988,        // Nominal Performance
+                        600,         // Lowest Nonlinear Performance
+                        600,         // Lowest Performance
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Guaranteed Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010100, 3) }, // Desired Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Minimum Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
+                        0,           // Counter Wraparound Time (none)
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010108, 4) }, // Reference Performance Counter
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010110, 4) }, // Delivered Performance Counter
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010118, 3) }, // Performance Limited Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // CPPC Enable Register
+                        0,           // Autonomous Selection Enable
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Autonomous Activity Window Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Energy Performance Preference Register
+                        2988,        // Reference Performance
+                        600,         // Lowest Frequency (MHz)
+                        2988         // Nominal Frequency (MHz)
+                    })
+                    // One P-state per cluster; the HV coordinates (max over the cluster).
+                    Name(_PSD, Package() { Package() { 5, 0, 1, 0xFE, 4 } })
                     // Method (_LPI, 0, NotSerialized) {
                     // return(PLPI)
                     // }
@@ -322,6 +472,34 @@
                 Device(CPU5) {
                     Name(_HID, "ACPI0007")
                     Name(_UID, 5)
+                    // ACPI CPPC (m1n1 hv_cppc.c page 0x300010000); performance unit = MHz.
+                    Name(_CPC, Package() {
+                        23,          // NumEntries
+                        3,           // Revision
+                        2988,        // Highest Performance
+                        2988,        // Nominal Performance
+                        600,         // Lowest Nonlinear Performance
+                        600,         // Lowest Performance
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Guaranteed Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010140, 3) }, // Desired Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Minimum Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
+                        0,           // Counter Wraparound Time (none)
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010148, 4) }, // Reference Performance Counter
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010150, 4) }, // Delivered Performance Counter
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010158, 3) }, // Performance Limited Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // CPPC Enable Register
+                        0,           // Autonomous Selection Enable
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Autonomous Activity Window Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Energy Performance Preference Register
+                        2988,        // Reference Performance
+                        600,         // Lowest Frequency (MHz)
+                        2988         // Nominal Frequency (MHz)
+                    })
+                    // One P-state per cluster; the HV coordinates (max over the cluster).
+                    Name(_PSD, Package() { Package() { 5, 0, 1, 0xFE, 4 } })
                     // Method (_LPI, 0, NotSerialized) {
                     // return(PLPI)
                     // }
@@ -332,6 +510,34 @@
                 Device(CPU6) {
                     Name(_HID, "ACPI0007")
                     Name(_UID, 6)
+                    // ACPI CPPC (m1n1 hv_cppc.c page 0x300010000); performance unit = MHz.
+                    Name(_CPC, Package() {
+                        23,          // NumEntries
+                        3,           // Revision
+                        2988,        // Highest Performance
+                        2988,        // Nominal Performance
+                        600,         // Lowest Nonlinear Performance
+                        600,         // Lowest Performance
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Guaranteed Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010180, 3) }, // Desired Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Minimum Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
+                        0,           // Counter Wraparound Time (none)
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010188, 4) }, // Reference Performance Counter
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010190, 4) }, // Delivered Performance Counter
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010198, 3) }, // Performance Limited Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // CPPC Enable Register
+                        0,           // Autonomous Selection Enable
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Autonomous Activity Window Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Energy Performance Preference Register
+                        2988,        // Reference Performance
+                        600,         // Lowest Frequency (MHz)
+                        2988         // Nominal Frequency (MHz)
+                    })
+                    // One P-state per cluster; the HV coordinates (max over the cluster).
+                    Name(_PSD, Package() { Package() { 5, 0, 1, 0xFE, 4 } })
                     // Method (_LPI, 0, NotSerialized) {
                     // return(PLPI)
                     // }
@@ -342,6 +548,34 @@
                 Device(CPU7) {
                     Name(_HID, "ACPI0007")
                     Name(_UID, 7)
+                    // ACPI CPPC (m1n1 hv_cppc.c page 0x300010000); performance unit = MHz.
+                    Name(_CPC, Package() {
+                        23,          // NumEntries
+                        3,           // Revision
+                        2988,        // Highest Performance
+                        2988,        // Nominal Performance
+                        600,         // Lowest Nonlinear Performance
+                        600,         // Lowest Performance
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Guaranteed Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x3000101C0, 3) }, // Desired Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Minimum Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
+                        0,           // Counter Wraparound Time (none)
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x3000101C8, 4) }, // Reference Performance Counter
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x3000101D0, 4) }, // Delivered Performance Counter
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x3000101D8, 3) }, // Performance Limited Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // CPPC Enable Register
+                        0,           // Autonomous Selection Enable
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Autonomous Activity Window Register
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Energy Performance Preference Register
+                        2988,        // Reference Performance
+                        600,         // Lowest Frequency (MHz)
+                        2988         // Nominal Frequency (MHz)
+                    })
+                    // One P-state per cluster; the HV coordinates (max over the cluster).
+                    Name(_PSD, Package() { Package() { 5, 0, 1, 0xFE, 4 } })
                     // Method (_LPI, 0, NotSerialized) {
                     // return(PLPI)
                     // }
