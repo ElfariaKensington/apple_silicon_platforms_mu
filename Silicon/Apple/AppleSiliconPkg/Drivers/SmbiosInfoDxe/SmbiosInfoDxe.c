@@ -55,6 +55,7 @@ be found at http://opensource.org/licenses/bsd-license.php
 #include <Library/UefiDriverEntryPoint.h>
 #include <Library/UefiLib.h>
 #include <Library/AppleDTLib.h>
+#include <Library/ArmLib.h>
 
 /* Used to read chip serial number */
 //#include <Protocol/EFIChipInfo.h>
@@ -309,7 +310,7 @@ SMBIOS_TABLE_TYPE4 mProcessorInfoType4 = {
     6, // EnabledCoreCount;
     6, // ThreadCount;
     0xAC,                        // ProcessorCharacteristics;
-    ProcessorFamilyARM,          // ARM Processor Family;
+    ProcessorFamilyARMv8,        // ARM Processor Family (Family2);
 };
 
 CHAR8 *mProcessorInfoType4Strings[] = {
@@ -735,9 +736,56 @@ VOID EnclosureInfoUpdateSmbiosType3(VOID)
 /***********************************************************************
         SMBIOS data update  TYPE4  Processor Information
 ************************************************************************/
+/*
+ * Apple CPU part numbers (MIDR_EL1 implementer 0x61) -> marketing name and the
+ * highest P-core operating point of the SoC (Asahi device-tree OPP tables:
+ * t8103 3204 MHz, t600x 3228 MHz, t8112 3504 MHz).  Windows shows the Type 4
+ * Version string as the processor name (ProcessorNameString).
+ */
+typedef struct {
+  UINT16 PartNumber;
+  CHAR8  *Name;
+  UINT16 MaxSpeedMhz;
+} APPLE_CPU_PART;
+
+STATIC CONST APPLE_CPU_PART mAppleCpuParts[] = {
+  { 0x022, "Apple M1",     3204 }, { 0x023, "Apple M1",     3204 },
+  { 0x024, "Apple M1 Pro", 3228 }, { 0x025, "Apple M1 Pro", 3228 },
+  { 0x028, "Apple M1 Max", 3228 }, { 0x029, "Apple M1 Max", 3228 },
+  { 0x032, "Apple M2",     3504 }, { 0x033, "Apple M2",     3504 },
+};
+
+STATIC VOID ProcessorInfoIdentify(IN UINTN MaxCpus)
+{
+  UINT32 Midr = (UINT32)ArmReadMidr();
+  UINT16 Part = (UINT16)((Midr >> 4) & 0xFFF);
+  UINTN  Index;
+
+  // SMBIOS 3.x ARM64: Processor ID = MIDR_EL1 when the SMCCC SoC ID is absent.
+  CopyMem(&mProcessorInfoType4.ProcessorId, &Midr, sizeof(Midr));
+
+  if (MaxCpus != 0 && MaxCpus <= 0xFF) {
+    mProcessorInfoType4.CoreCount        = (UINT8)MaxCpus;
+    mProcessorInfoType4.EnabledCoreCount = (UINT8)MaxCpus;
+    mProcessorInfoType4.ThreadCount      = (UINT8)MaxCpus;
+  }
+
+  if (((Midr >> 24) & 0xFF) != 0x61)
+    return;
+  for (Index = 0; Index < ARRAY_SIZE(mAppleCpuParts); Index++) {
+    if (mAppleCpuParts[Index].PartNumber == Part) {
+      mProcessorInfoType4Strings[2] = mAppleCpuParts[Index].Name;
+      mProcessorInfoType4.MaxSpeed  = mAppleCpuParts[Index].MaxSpeedMhz;
+      return;
+    }
+  }
+}
+
 VOID ProcessorInfoUpdateSmbiosType4(IN UINTN MaxCpus)
 {
   EFI_SMBIOS_HANDLE SmbiosHandle;
+
+  ProcessorInfoIdentify(MaxCpus);
 
   LogSmbiosData(
       (EFI_SMBIOS_TABLE_HEADER *)&mCacheInfoType7_L1DC, mCacheInfoType7_L1DC_Strings,

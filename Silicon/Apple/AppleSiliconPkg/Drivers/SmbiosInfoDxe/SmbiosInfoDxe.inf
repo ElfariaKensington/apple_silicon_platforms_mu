@@ -35,6 +35,7 @@
   DebugLib
   CompilerIntrinsicsLib
   AppleDTLib
+  ArmLib
 
 [Protocols]
   gEfiSmbiosProtocolGuid
