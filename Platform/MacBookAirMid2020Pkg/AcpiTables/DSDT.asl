@@ -286,7 +286,7 @@
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
-                        0,           // Counter Wraparound Time (none)
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Counter Wraparound Time (null register; FxPPM accepts only a Buffer here)
                         ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010008, 4) }, // Reference Performance Counter
                         ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010010, 4) }, // Delivered Performance Counter
                         ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010018, 3) }, // Performance Limited Register
@@ -325,7 +325,7 @@
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
-                        0,           // Counter Wraparound Time (none)
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Counter Wraparound Time (null register; FxPPM accepts only a Buffer here)
                         ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010048, 4) }, // Reference Performance Counter
                         ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010050, 4) }, // Delivered Performance Counter
                         ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010058, 3) }, // Performance Limited Register
@@ -363,7 +363,7 @@
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
-                        0,           // Counter Wraparound Time (none)
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Counter Wraparound Time (null register; FxPPM accepts only a Buffer here)
                         ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010088, 4) }, // Reference Performance Counter
                         ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010090, 4) }, // Delivered Performance Counter
                         ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010098, 3) }, // Performance Limited Register
@@ -401,7 +401,7 @@
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
-                        0,           // Counter Wraparound Time (none)
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Counter Wraparound Time (null register; FxPPM accepts only a Buffer here)
                         ResourceTemplate() { Register(SystemMemory, 64, 0, 0x3000100C8, 4) }, // Reference Performance Counter
                         ResourceTemplate() { Register(SystemMemory, 64, 0, 0x3000100D0, 4) }, // Delivered Performance Counter
                         ResourceTemplate() { Register(SystemMemory, 32, 0, 0x3000100D8, 3) }, // Performance Limited Register
@@ -447,7 +447,7 @@
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
-                        0,           // Counter Wraparound Time (none)
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Counter Wraparound Time (null register; FxPPM accepts only a Buffer here)
                         ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010108, 4) }, // Reference Performance Counter
                         ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010110, 4) }, // Delivered Performance Counter
                         ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010118, 3) }, // Performance Limited Register
@@ -486,7 +486,7 @@
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
-                        0,           // Counter Wraparound Time (none)
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Counter Wraparound Time (null register; FxPPM accepts only a Buffer here)
                         ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010148, 4) }, // Reference Performance Counter
                         ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010150, 4) }, // Delivered Performance Counter
                         ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010158, 3) }, // Performance Limited Register
@@ -524,7 +524,7 @@
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
-                        0,           // Counter Wraparound Time (none)
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Counter Wraparound Time (null register; FxPPM accepts only a Buffer here)
                         ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010188, 4) }, // Reference Performance Counter
                         ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300010190, 4) }, // Delivered Performance Counter
                         ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010198, 3) }, // Performance Limited Register
@@ -562,7 +562,7 @@
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
-                        0,           // Counter Wraparound Time (none)
+                        ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Counter Wraparound Time (null register; FxPPM accepts only a Buffer here)
                         ResourceTemplate() { Register(SystemMemory, 64, 0, 0x3000101C8, 4) }, // Reference Performance Counter
                         ResourceTemplate() { Register(SystemMemory, 64, 0, 0x3000101D0, 4) }, // Delivered Performance Counter
                         ResourceTemplate() { Register(SystemMemory, 32, 0, 0x3000101D8, 3) }, // Performance Limited Register
