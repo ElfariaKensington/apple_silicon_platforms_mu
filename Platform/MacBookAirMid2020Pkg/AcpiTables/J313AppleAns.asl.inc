@@ -7,7 +7,7 @@ Device (ANS0) {
     Name (_CRS, ResourceTemplate () {
         QWordMemory (ResourceConsumer, PosDecode, MinFixed, MaxFixed, NonCacheable,
                      ReadWrite, 0, 0x0000000300010000, 0x0000000300013FFF, 0, 0x4000)
-        Interrupt (ResourceConsumer, Level, ActiveHigh, Exclusive) { 889 }
+        Interrupt (ResourceConsumer, Level, ActiveHigh, Exclusive) { 960 }
     })
     Method (_STA, 0) { If (ANSN) { Return (0x0F) } Return (Zero) }
 }
