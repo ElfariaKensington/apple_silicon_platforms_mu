@@ -40,6 +40,9 @@
   # Installed native boot of the internal Windows (requires J313_ANS_NATIVE_PROFILE): boots only
   # the pinned Windows ESP below instead of the preloaded WinPE RAMDisk. Never a default.
   J313_ANS_INSTALLED_BOOT        = FALSE
+  # ANS-DIRECT (requires J313_ANS_NATIVE_PROFILE): APPL0003 describes the physical ANS2 controller
+  # and ASC mailbox; m1n1 must be launched with --ans-direct. Never a default.
+  J313_ANS_DIRECT                = FALSE
   # Candidate-only synthetic-interrupt Full Graphics ABI admission profile.
   J313_AGX_ABI_ADMISSION_PROFILE            = FALSE
 
@@ -76,7 +79,11 @@
 [Components.common]
 
 !if $(J313_ANS_NATIVE_PROFILE) == TRUE
+!if $(J313_ANS_DIRECT) == TRUE
+  MacBookAirMid2020Pkg/AcpiTables/DeviceAcpiTablesAnsDirect.inf
+!else
   MacBookAirMid2020Pkg/AcpiTables/DeviceAcpiTablesAnsNative.inf
+!endif
 !elseif $(J313_AGX_ABI_ADMISSION_PROFILE) == TRUE
   MacBookAirMid2020Pkg/AcpiTables/DeviceAcpiTablesAgxAbiAdmission.inf
 !elseif $(J313_AGX_G2_PROFILE) == TRUE

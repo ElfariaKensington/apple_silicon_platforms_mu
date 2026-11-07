@@ -22,7 +22,11 @@
 #ifdef J313_ANS_NATIVE_ACPI
         // Native wrapper only. EL2 must arm ownership before Windows entry.
         Name (ANSN, One)
+#ifdef J313_ANS_DIRECT_ACPI
+        Include ("J313AppleAnsDirect.asl.inc")
+#else
         Include ("J313AppleAns.asl.inc")
+#endif
 #endif
 
         // Generated from config/j313-apple-input.json.  Keep the firmware,
