@@ -1,0 +1,25 @@
+## SPDX-License-Identifier: BSD-2-Clause-Patent
+[Defines]
+  INF_VERSION = 0x00010005
+  BASE_NAME = AppleAnsInstalledExitBootServicesGateLib
+  FILE_GUID = 5018f1b3-8628-4b55-90b6-ef58b4fbd768
+  MODULE_TYPE = DXE_CORE
+  VERSION_STRING = 1.0
+  LIBRARY_CLASS = DxeExitBootServicesGateLib|DXE_CORE
+[Sources]
+  AppleAnsInstalledExitBootServicesGateLib.c
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  AppleSiliconPkg/AppleSiliconPkg.dec
+[LibraryClasses]
+  BaseLib
+  IoLib
+  DevicePathLib
+  PcdLib
+[Pcd]
+  gAppleSiliconPkgTokenSpaceGuid.PcdPreloadedRamdiskBase
+  gAppleSiliconPkgTokenSpaceGuid.PcdPreloadedRamdiskMaxSize
+  gAppleSiliconPkgTokenSpaceGuid.PcdAnsInstalledEspStartLba
+  gAppleSiliconPkgTokenSpaceGuid.PcdAnsInstalledEspBlocks
+  gAppleSiliconPkgTokenSpaceGuid.PcdAnsInstalledEspGuid

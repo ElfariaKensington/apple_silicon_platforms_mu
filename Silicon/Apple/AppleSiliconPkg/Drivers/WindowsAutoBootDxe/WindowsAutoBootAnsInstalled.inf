@@ -1,0 +1,42 @@
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = WindowsAutoBootAnsInstalled
+  FILE_GUID                      = 6ae1a4a2-80a1-4d5d-97f8-f3a4ee85da73
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = WindowsAutoBootDxeInitialize
+
+[Sources.common]
+  WindowsAutoBootAnsInstalled.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  AppleSiliconPkg/AppleSiliconPkg.dec
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  UefiBootServicesTableLib
+  DevicePathLib
+  MemoryAllocationLib
+  DebugLib
+  BaseLib
+  PcdLib
+
+[Protocols]
+  gEfiSimpleFileSystemProtocolGuid              ## CONSUMES
+  gEfiBlockIoProtocolGuid                       ## CONSUMES
+  gEfiLoadedImageProtocolGuid                   ## CONSUMES
+  gEfiPciIoProtocolGuid                         ## CONSUMES
+
+[Guids]
+  gEfiEventReadyToBootGuid
+
+[Depex]
+  TRUE
+
+[Pcd]
+  gAppleSiliconPkgTokenSpaceGuid.PcdPreloadedRamdiskBase
+  gAppleSiliconPkgTokenSpaceGuid.PcdPreloadedRamdiskMaxSize
+  gAppleSiliconPkgTokenSpaceGuid.PcdAnsInstalledEspStartLba
+  gAppleSiliconPkgTokenSpaceGuid.PcdAnsInstalledEspBlocks
+  gAppleSiliconPkgTokenSpaceGuid.PcdAnsInstalledEspGuid
