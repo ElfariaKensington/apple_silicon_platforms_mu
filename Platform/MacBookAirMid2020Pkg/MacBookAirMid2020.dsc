@@ -86,7 +86,11 @@
 
 !if $(J313_ANS_NATIVE_PROFILE) == TRUE
 !if $(J313_ANS_DIRECT) == TRUE
+!if $(J313_AGX_ABI_ADMISSION_PROFILE) == TRUE
+  MacBookAirMid2020Pkg/AcpiTables/DeviceAcpiTablesAgxAbiAdmissionAnsDirect.inf
+!else
   MacBookAirMid2020Pkg/AcpiTables/DeviceAcpiTablesAnsDirect.inf
+!endif
 !else
   MacBookAirMid2020Pkg/AcpiTables/DeviceAcpiTablesAnsNative.inf
 !endif
