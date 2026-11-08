@@ -283,7 +283,7 @@
                 Device(CPU0) {
                     Name(_HID, "ACPI0007")
                     Name(_UID, 0)
-                    // ACPI CPPC (m1n1 hv_cppc.c: trapped page 0x300010000, counters 0x300014000); unit = MHz.
+                    // ACPI CPPC (m1n1 hv_cppc.c: trapped page 0x300040000, counters 0x300044000); unit = MHz.
                     Name(_CPC, Package() {
                         23,          // NumEntries
                         3,           // Revision
@@ -292,15 +292,15 @@
                         600,         // Lowest Nonlinear Performance
                         600,         // Lowest Performance
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Guaranteed Performance Register
-                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010000, 3) }, // Desired Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300040000, 3) }, // Desired Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Minimum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Counter Wraparound Time (null register; FxPPM accepts only a Buffer here)
-                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300014000, 4) }, // Reference Performance Counter (memory-backed, HV-refreshed 1 kHz)
-                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300014008, 4) }, // Delivered Performance Counter (memory-backed, HV-refreshed 1 kHz)
-                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010018, 3) }, // Performance Limited Register
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300044000, 4) }, // Reference Performance Counter (memory-backed, HV-refreshed 1 kHz)
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300044008, 4) }, // Delivered Performance Counter (memory-backed, HV-refreshed 1 kHz)
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300040018, 3) }, // Performance Limited Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // CPPC Enable Register
                         0,           // Autonomous Selection Enable
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Autonomous Activity Window Register
@@ -322,7 +322,7 @@
                 Device(CPU1) {
                     Name(_HID, "ACPI0007")
                     Name(_UID, 1)
-                    // ACPI CPPC (m1n1 hv_cppc.c: trapped page 0x300010000, counters 0x300014000); unit = MHz.
+                    // ACPI CPPC (m1n1 hv_cppc.c: trapped page 0x300040000, counters 0x300044000); unit = MHz.
                     Name(_CPC, Package() {
                         23,          // NumEntries
                         3,           // Revision
@@ -331,15 +331,15 @@
                         600,         // Lowest Nonlinear Performance
                         600,         // Lowest Performance
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Guaranteed Performance Register
-                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010040, 3) }, // Desired Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300040040, 3) }, // Desired Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Minimum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Counter Wraparound Time (null register; FxPPM accepts only a Buffer here)
-                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300014010, 4) }, // Reference Performance Counter (memory-backed, HV-refreshed 1 kHz)
-                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300014018, 4) }, // Delivered Performance Counter (memory-backed, HV-refreshed 1 kHz)
-                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010058, 3) }, // Performance Limited Register
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300044010, 4) }, // Reference Performance Counter (memory-backed, HV-refreshed 1 kHz)
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300044018, 4) }, // Delivered Performance Counter (memory-backed, HV-refreshed 1 kHz)
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300040058, 3) }, // Performance Limited Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // CPPC Enable Register
                         0,           // Autonomous Selection Enable
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Autonomous Activity Window Register
@@ -360,7 +360,7 @@
                 Device(CPU2) {
                     Name(_HID, "ACPI0007")
                     Name(_UID, 2)
-                    // ACPI CPPC (m1n1 hv_cppc.c: trapped page 0x300010000, counters 0x300014000); unit = MHz.
+                    // ACPI CPPC (m1n1 hv_cppc.c: trapped page 0x300040000, counters 0x300044000); unit = MHz.
                     Name(_CPC, Package() {
                         23,          // NumEntries
                         3,           // Revision
@@ -369,15 +369,15 @@
                         600,         // Lowest Nonlinear Performance
                         600,         // Lowest Performance
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Guaranteed Performance Register
-                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010080, 3) }, // Desired Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300040080, 3) }, // Desired Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Minimum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Counter Wraparound Time (null register; FxPPM accepts only a Buffer here)
-                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300014020, 4) }, // Reference Performance Counter (memory-backed, HV-refreshed 1 kHz)
-                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300014028, 4) }, // Delivered Performance Counter (memory-backed, HV-refreshed 1 kHz)
-                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010098, 3) }, // Performance Limited Register
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300044020, 4) }, // Reference Performance Counter (memory-backed, HV-refreshed 1 kHz)
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300044028, 4) }, // Delivered Performance Counter (memory-backed, HV-refreshed 1 kHz)
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300040098, 3) }, // Performance Limited Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // CPPC Enable Register
                         0,           // Autonomous Selection Enable
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Autonomous Activity Window Register
@@ -398,7 +398,7 @@
                 Device(CPU3) {
                     Name(_HID, "ACPI0007")
                     Name(_UID, 3)
-                    // ACPI CPPC (m1n1 hv_cppc.c: trapped page 0x300010000, counters 0x300014000); unit = MHz.
+                    // ACPI CPPC (m1n1 hv_cppc.c: trapped page 0x300040000, counters 0x300044000); unit = MHz.
                     Name(_CPC, Package() {
                         23,          // NumEntries
                         3,           // Revision
@@ -407,15 +407,15 @@
                         600,         // Lowest Nonlinear Performance
                         600,         // Lowest Performance
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Guaranteed Performance Register
-                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x3000100C0, 3) }, // Desired Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x3000400C0, 3) }, // Desired Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Minimum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Counter Wraparound Time (null register; FxPPM accepts only a Buffer here)
-                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300014030, 4) }, // Reference Performance Counter (memory-backed, HV-refreshed 1 kHz)
-                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300014038, 4) }, // Delivered Performance Counter (memory-backed, HV-refreshed 1 kHz)
-                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x3000100D8, 3) }, // Performance Limited Register
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300044030, 4) }, // Reference Performance Counter (memory-backed, HV-refreshed 1 kHz)
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300044038, 4) }, // Delivered Performance Counter (memory-backed, HV-refreshed 1 kHz)
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x3000400D8, 3) }, // Performance Limited Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // CPPC Enable Register
                         0,           // Autonomous Selection Enable
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Autonomous Activity Window Register
@@ -444,7 +444,7 @@
                 Device(CPU4) {
                     Name(_HID, "ACPI0007")
                     Name(_UID, 4)
-                    // ACPI CPPC (m1n1 hv_cppc.c: trapped page 0x300010000, counters 0x300014000); unit = MHz.
+                    // ACPI CPPC (m1n1 hv_cppc.c: trapped page 0x300040000, counters 0x300044000); unit = MHz.
                     Name(_CPC, Package() {
                         23,          // NumEntries
                         3,           // Revision
@@ -453,15 +453,15 @@
                         600,         // Lowest Nonlinear Performance
                         600,         // Lowest Performance
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Guaranteed Performance Register
-                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010100, 3) }, // Desired Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300040100, 3) }, // Desired Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Minimum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Counter Wraparound Time (null register; FxPPM accepts only a Buffer here)
-                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300014040, 4) }, // Reference Performance Counter (memory-backed, HV-refreshed 1 kHz)
-                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300014048, 4) }, // Delivered Performance Counter (memory-backed, HV-refreshed 1 kHz)
-                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010118, 3) }, // Performance Limited Register
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300044040, 4) }, // Reference Performance Counter (memory-backed, HV-refreshed 1 kHz)
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300044048, 4) }, // Delivered Performance Counter (memory-backed, HV-refreshed 1 kHz)
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300040118, 3) }, // Performance Limited Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // CPPC Enable Register
                         0,           // Autonomous Selection Enable
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Autonomous Activity Window Register
@@ -483,7 +483,7 @@
                 Device(CPU5) {
                     Name(_HID, "ACPI0007")
                     Name(_UID, 5)
-                    // ACPI CPPC (m1n1 hv_cppc.c: trapped page 0x300010000, counters 0x300014000); unit = MHz.
+                    // ACPI CPPC (m1n1 hv_cppc.c: trapped page 0x300040000, counters 0x300044000); unit = MHz.
                     Name(_CPC, Package() {
                         23,          // NumEntries
                         3,           // Revision
@@ -492,15 +492,15 @@
                         600,         // Lowest Nonlinear Performance
                         600,         // Lowest Performance
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Guaranteed Performance Register
-                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010140, 3) }, // Desired Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300040140, 3) }, // Desired Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Minimum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Counter Wraparound Time (null register; FxPPM accepts only a Buffer here)
-                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300014050, 4) }, // Reference Performance Counter (memory-backed, HV-refreshed 1 kHz)
-                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300014058, 4) }, // Delivered Performance Counter (memory-backed, HV-refreshed 1 kHz)
-                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010158, 3) }, // Performance Limited Register
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300044050, 4) }, // Reference Performance Counter (memory-backed, HV-refreshed 1 kHz)
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300044058, 4) }, // Delivered Performance Counter (memory-backed, HV-refreshed 1 kHz)
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300040158, 3) }, // Performance Limited Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // CPPC Enable Register
                         0,           // Autonomous Selection Enable
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Autonomous Activity Window Register
@@ -521,7 +521,7 @@
                 Device(CPU6) {
                     Name(_HID, "ACPI0007")
                     Name(_UID, 6)
-                    // ACPI CPPC (m1n1 hv_cppc.c: trapped page 0x300010000, counters 0x300014000); unit = MHz.
+                    // ACPI CPPC (m1n1 hv_cppc.c: trapped page 0x300040000, counters 0x300044000); unit = MHz.
                     Name(_CPC, Package() {
                         23,          // NumEntries
                         3,           // Revision
@@ -530,15 +530,15 @@
                         600,         // Lowest Nonlinear Performance
                         600,         // Lowest Performance
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Guaranteed Performance Register
-                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010180, 3) }, // Desired Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300040180, 3) }, // Desired Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Minimum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Counter Wraparound Time (null register; FxPPM accepts only a Buffer here)
-                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300014060, 4) }, // Reference Performance Counter (memory-backed, HV-refreshed 1 kHz)
-                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300014068, 4) }, // Delivered Performance Counter (memory-backed, HV-refreshed 1 kHz)
-                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300010198, 3) }, // Performance Limited Register
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300044060, 4) }, // Reference Performance Counter (memory-backed, HV-refreshed 1 kHz)
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300044068, 4) }, // Delivered Performance Counter (memory-backed, HV-refreshed 1 kHz)
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x300040198, 3) }, // Performance Limited Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // CPPC Enable Register
                         0,           // Autonomous Selection Enable
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Autonomous Activity Window Register
@@ -559,7 +559,7 @@
                 Device(CPU7) {
                     Name(_HID, "ACPI0007")
                     Name(_UID, 7)
-                    // ACPI CPPC (m1n1 hv_cppc.c: trapped page 0x300010000, counters 0x300014000); unit = MHz.
+                    // ACPI CPPC (m1n1 hv_cppc.c: trapped page 0x300040000, counters 0x300044000); unit = MHz.
                     Name(_CPC, Package() {
                         23,          // NumEntries
                         3,           // Revision
@@ -568,15 +568,15 @@
                         600,         // Lowest Nonlinear Performance
                         600,         // Lowest Performance
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Guaranteed Performance Register
-                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x3000101C0, 3) }, // Desired Performance Register
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x3000401C0, 3) }, // Desired Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Minimum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Maximum Performance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Performance Reduction Tolerance Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Time Window Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Counter Wraparound Time (null register; FxPPM accepts only a Buffer here)
-                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300014070, 4) }, // Reference Performance Counter (memory-backed, HV-refreshed 1 kHz)
-                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300014078, 4) }, // Delivered Performance Counter (memory-backed, HV-refreshed 1 kHz)
-                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x3000101D8, 3) }, // Performance Limited Register
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300044070, 4) }, // Reference Performance Counter (memory-backed, HV-refreshed 1 kHz)
+                        ResourceTemplate() { Register(SystemMemory, 64, 0, 0x300044078, 4) }, // Delivered Performance Counter (memory-backed, HV-refreshed 1 kHz)
+                        ResourceTemplate() { Register(SystemMemory, 32, 0, 0x3000401D8, 3) }, // Performance Limited Register
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // CPPC Enable Register
                         0,           // Autonomous Selection Enable
                         ResourceTemplate() { Register(SystemMemory, 0, 0, 0, 0) }, // Autonomous Activity Window Register
