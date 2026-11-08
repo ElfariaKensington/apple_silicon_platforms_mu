@@ -5,6 +5,7 @@
   DEFINE J316S_SETUP_USB          = FALSE
   DEFINE J316S_SETUP_INPUT        = FALSE
   DEFINE J316S_SETUP_STORAGE      = FALSE
+  DEFINE J316S_SETUP_WIFI         = FALSE
   PLATFORM_NAME                  = J316sSetup
   PLATFORM_GUID                  = 280951a5-55dc-4997-9ea1-8e76a1217424
   PLATFORM_VERSION               = 1.0
@@ -30,7 +31,11 @@
 !endif
 !if $(J316S_SETUP_USB) == TRUE
 !if $(J316S_SETUP_INPUT) == TRUE
+!if $(J316S_SETUP_WIFI) == TRUE
+  *_*_*_ASLPP_FLAGS = -DJ316S_SETUP_USB -DJ316S_SETUP_INPUT -DJ316S_SETUP_WIFI
+!else
   *_*_*_ASLPP_FLAGS = -DJ316S_SETUP_USB -DJ316S_SETUP_INPUT
+!endif
 !else
   *_*_*_ASLPP_FLAGS = -DJ316S_SETUP_USB
 !endif
@@ -38,7 +43,7 @@
 
 [PcdsPatchableInModule.common]
   gArmTokenSpaceGuid.PcdSystemMemoryBase|0x850000000
-  gArmTokenSpaceGuid.PcdSystemMemorySize|0x1B0000000
+  gArmTokenSpaceGuid.PcdSystemMemorySize|0x300000000
   gArmTokenSpaceGuid.PcdFdBaseAddress|0
   gArmTokenSpaceGuid.PcdFvBaseAddress|0
   gAppleSiliconPkgTokenSpaceGuid.PcdFrameBufferAddress|0

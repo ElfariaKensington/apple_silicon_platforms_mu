@@ -5,6 +5,19 @@ DefinitionBlock ("", "DSDT", 2, "APPLE ", "J316SPE ", 1)
     // Setup boots from memory. USB is optional and initialized by EL2.
     Scope (\_SB)
     {
+#ifdef J316S_SETUP_WIFI
+        Device (WIF0)
+        {
+            Name (_HID, "APPL0010")
+            Name (_UID, Zero)
+            Name (_CCA, One)
+            Name (_CRS, ResourceTemplate ()
+            {
+                QWordMemory (ResourceConsumer, PosDecode, MinFixed, MaxFixed,
+                    NonCacheable, ReadWrite, 0, 0x410000000, 0x41007FFFF, 0, 0x80000)
+            })
+        }
+#endif
         Device (CPU0) { Name (_HID, "ACPI0007") Name (_UID, 0) }
         Device (CPU1) { Name (_HID, "ACPI0007") Name (_UID, 1) }
         Device (CPU2) { Name (_HID, "ACPI0007") Name (_UID, 2) }
