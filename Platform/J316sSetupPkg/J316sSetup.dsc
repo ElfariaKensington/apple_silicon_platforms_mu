@@ -43,7 +43,7 @@
 
 [PcdsPatchableInModule.common]
   gArmTokenSpaceGuid.PcdSystemMemoryBase|0x850000000
-  gArmTokenSpaceGuid.PcdSystemMemorySize|0x300000000
+  gArmTokenSpaceGuid.PcdSystemMemorySize|0x280000000
   gArmTokenSpaceGuid.PcdFdBaseAddress|0
   gArmTokenSpaceGuid.PcdFvBaseAddress|0
   gAppleSiliconPkgTokenSpaceGuid.PcdFrameBufferAddress|0
